@@ -32,15 +32,15 @@ beta_adam_steps_list = [(1,10)]
 adam_curve = [50,50,50,50,50,50,50,10] # m
 # adam_curve = None
 
-fast_learning_rates = [1.0,0.1]
+fast_learning_rates = [0.0]
 baselines = ['linear',]  # linear GaussianMLP MAMLGaussianMLP zero
 env_option = ''
 # mode = "ec2"
 mode = "local"
 extra_input = "onehot_exploration" # "onehot_exploration" "gaussian_exploration"
-# extra_input = None
-extra_input_dim = 5
-# extra_input_dim = None
+extra_input = None
+# extra_input_dim = 0
+extra_input_dim = None
 goals_suffixes = [""] #["_200_40_1"] #,"_200_40_2", "_200_40_3","_200_40_4"]
 # goals_suffixes = ["_1000_40"]
 
@@ -133,7 +133,7 @@ for goals_suffix in goals_suffixes:
                                                                 env_spec=env.spec,
                                                                 grad_step_size=fast_learning_rate,
                                                                 hidden_nonlinearity=tf.nn.relu,
-                                                                hidden_sizes=(100, 100, 100),
+                                                                hidden_sizes=(100, 100),
                                                                 std_modifier=pre_std_modifier,
                                                                 # metalearn_baseline=(bas == "MAMLGaussianMLP"),
                                                                 extra_input_dim=(0 if extra_input is None else extra_input_dim),
@@ -197,7 +197,7 @@ for goals_suffix in goals_suffixes:
                                                                 max_path_length=max_path_length,
                                                                 meta_batch_size=meta_batch_size,  # number of tasks sampled for beta grad update
                                                                 num_grad_updates=num_grad_updates,  # number of alpha grad updates
-                                                                n_itr=200, #100
+                                                                n_itr=800, #100
                                                                 make_video=False,
                                                                 use_maml=use_maml,
                                                                 use_pooled_goals=True,
