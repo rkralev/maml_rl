@@ -32,19 +32,19 @@ beta_adam_steps_list = [(1,10)]
 adam_curve = [50,50,50,50,50,50,50,10] # m
 # adam_curve = None
 
-fast_learning_rates = [0.0]
+fast_learning_rates = [0.1]
 baselines = ['linear',]  # linear GaussianMLP MAMLGaussianMLP zero
 env_option = ''
 # mode = "ec2"
 mode = "local"
 extra_input = "onehot_exploration" # "onehot_exploration" "gaussian_exploration"
-extra_input = None
-# extra_input_dim = 0
-extra_input_dim = None
+# extra_input = None
+extra_input_dim = 5
+# extra_input_dim = None
 goals_suffixes = [""] #["_200_40_1"] #,"_200_40_2", "_200_40_3","_200_40_4"]
 # goals_suffixes = ["_1000_40"]
 
-fast_batch_size_list = [60]  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
+fast_batch_size_list = [20]  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
 meta_batch_size_list = [40] # 40 @ 10 also works, but much less stable, 20 is fairly stable, 40 is more stable
 max_path_length = 100  # 100
 num_grad_updates = 1
@@ -88,7 +88,7 @@ for goals_suffix in goals_suffixes:
                                                             rd.seed(seed)
                                                             env = TfEnv(normalize(PusherEnv(distractors=True)))
                                                             exp_name = str(
-                                                                'PU_IL'
+                                                                'PU10_IL'
                                                                 # +time.strftime("%D").replace("/", "")[0:4]
                                                                 + goals_suffix + "_"
                                                                 + str(seed)
@@ -232,7 +232,7 @@ for goals_suffix in goals_suffixes:
                                                                 snapshot_mode="all",
                                                                 python_command='python3',
                                                                 seed=seed,
-                                                                exp_prefix=str('PU_IL_'
+                                                                exp_prefix=str('PU10_IL_'
                                                                                +time.strftime("%D").replace("/", "")[0:4]),
                                                                 exp_name=exp_name,
                                                                 plot=False,

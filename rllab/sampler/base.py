@@ -124,6 +124,8 @@ class BaseSampler(Sampler):
             if not fast_process:
                 rewards = tensor_utils.concat_tensor_list([path["rewards"] for path in paths])
                 returns = tensor_utils.concat_tensor_list([path["returns"] for path in paths])
+
+            if "env_infos" in paths[0].keys():
                 env_infos = tensor_utils.concat_tensor_dict_list([path["env_infos"] for path in paths])
 
             if not fast_process and not metalearn_baseline:
@@ -267,13 +269,40 @@ class BaseSampler(Sampler):
             logger.record_tabular(prefix + 'StdReturn', np.std(undiscounted_returns))
             logger.record_tabular(prefix + 'MaxReturn', np.max(undiscounted_returns))
             logger.record_tabular(prefix + 'MinReturn', np.min(undiscounted_returns))
-
-
+            if "env_infos" in paths[0].keys():
+                logger.record_tabular(prefix + 'success_left', eval_success_left(paths))
+                logger.record_tabular(prefix + 'success_right', eval_success_right(paths))
+            else:
+                logger.record_tabular(prefix + 'success_left', -1.0)
+                logger.record_tabular(prefix + 'success_right', -1.0)
         # if metalearn_baseline:
         #     if hasattr(self.algo.baseline, "revert"):
         #         self.algo.baseline.revert()
 
         return samples_data
+
+def eval_success_left(paths):
+    if 'env_infos' not in paths[0].keys():
+        return -1
+    else:
+        left_attempts = []
+        for path in paths:
+            success_left = np.mean(path['env_infos']['success_left'])
+            if success_left >= 0:
+                left_attempts.append(success_left>0.1)
+        return np.mean(left_attempts)
+
+
+def eval_success_right(paths):
+    if 'env_infos' not in paths[0].keys():
+        return -1
+    else:
+        right_attempts = []
+        for path in paths:
+            success_right = np.mean(path['env_infos']['success_right'])
+            if success_right >= 0:
+                right_attempts.append(success_right > 0.1)
+        return np.mean(right_attempts)
 
 
 TensorShape=1

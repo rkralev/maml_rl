@@ -29,8 +29,8 @@ class PusherEnv(utils.EzPickle, Serializable):
         self.xml_dir = "/home/rosen/FaReLI_data/pushing/push_textures/sim_push_xmls/"
         self.goal_num = None
         self.test = False
+        self.target_on_left=None
         self.reset()
-
         self.onehot = False
         self.onehot_dim = 5
         self.onehot_position = 0  # if dim is 5, options are 0 through 4 for onehot, and -1 for vector of zeroes
@@ -56,8 +56,8 @@ class PusherEnv(utils.EzPickle, Serializable):
 
     def step(self, action):
         self.mujoco.frame_skip = 5
-        ob, reward, done, reward_dict = self._step(a=action)
-        return Step(ob, reward, done)
+        ob, reward, done, env_info = self._step(a=action)
+        return Step(ob, reward, done, **env_info)
 
     def sample_goals(self, num_goals, test=False):
         out = []
@@ -97,10 +97,10 @@ class PusherEnv(utils.EzPickle, Serializable):
                 xml_file = xml_file.replace("/root/code/rllab/vendor/mujoco_models/", self.xml_dir)
                 # print("debug,xml_file", xml_file)
                 if int(xml_file[-5])%2==0:
-                    print("flipping order")
+                    print("inverted_order", int(xml_file[-5]))
                     self.shuffle_order=[1,0]
                 else:
-                    print("retaining order")
+                    print("normal_order",int(xml_file[-5]))
                     self.shuffle_order=[0,1]
                 self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
         elif self.goal_num is None:  #if we already have a goal_num, we don't sample a new one, just reset the model
@@ -111,11 +111,11 @@ class PusherEnv(utils.EzPickle, Serializable):
             xml_file = xml_file.replace("/root/code/rllab/vendor/mujoco_models/",self.xml_dir)
 
             if int(xml_file[-5]) % 2 == 0:
-                print("retaining order")
-                self.shuffle_order = [0, 1]
-            else:
-                print("flipping order")
+                print("inverted_order", int(xml_file[-5]))
                 self.shuffle_order = [1, 0]
+            else:
+                print("normal_order", int(xml_file[-5]))
+                self.shuffle_order = [0, 1]
             self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
             self.viewer_setup()
         self.reset_model()
@@ -134,16 +134,28 @@ class PusherEnv(utils.EzPickle, Serializable):
         reward_near = - np.linalg.norm(vec_1)
         reward_dist = - np.linalg.norm(vec_2)
         reward_ctrl = - np.square(a).sum()
-        reward = reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
+        reward = 10.0*reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
 
         self.mujoco.do_simulation(a, n_frames=self.mujoco.frame_skip)
         # extra added to copy rllab forward_dynamics.
         self.mujoco.model.forward()
 
+        if self.target_on_left:
+            success_left = 1 if np.sum(vec_2**2) <0.017 else 0
+            success_right = -1
+        else:
+            success_left = -1
+            success_right = 1 if np.sum(vec_2**2) <0.017 else 0
+
         ob = self._get_obs()
         done = False
-        return ob, reward, done, dict(reward_dist=reward_dist,
-                reward_ctrl=reward_ctrl)
+        return ob, reward, done, dict(
+            reward_dist=reward_dist,
+            reward_ctrl=reward_ctrl,
+            success_left=success_left,
+            success_right=success_right,
+            target_on_left=self.target_on_left,
+        )
 
     def reset_model(self):
         qpos = np.copy(self.mujoco.init_qpos)
@@ -159,15 +171,20 @@ class PusherEnv(utils.EzPickle, Serializable):
         if self.include_distractors:
             if self.obj_pos[1] < 0:
                 y_range = [0.0, 0.2]
+                self.target_on_left=True
+                # print("target on left")
             else:
                 y_range = [-0.2, 0.0]
+                self.target_on_left=False
+                # print("target on right")
+
             while True:
                 self.distractor_pos = np.concatenate([
                         np.random.uniform(low=-0.3, high=0, size=1),
-                        np.random.uniform(low=y_range[0], high=y_range[1], size=1)]).reshape(2,1)
+                        np.random.uniform(low=y_range[0], high=y_range[1], size=1)])
                 if np.linalg.norm(self.distractor_pos - self.goal_pos) > 0.17 and np.linalg.norm(self.obj_pos - self.distractor_pos) > 0.1:
                     break
-            qpos[-6:-4] = self.distractor_pos
+            qpos[-6:-4] = self.distractor_pos.reshape(2,1)
         qpos[-4:-2] = self.obj_pos.reshape(2,1)
         qpos[-2:] = self.goal_pos.reshape(2,1)
         qvel = self.mujoco.init_qvel + np.random.uniform(low=-0.005,
