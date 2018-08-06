@@ -32,7 +32,7 @@ beta_adam_steps_list = [(1,10)]
 adam_curve = [50,50,50,50,50,50,50,10] # m
 # adam_curve = None
 
-fast_learning_rates = [0.1]
+fast_learning_rates = [0.01]
 baselines = ['linear',]  # linear GaussianMLP MAMLGaussianMLP zero
 env_option = ''
 # mode = "ec2"
@@ -88,7 +88,7 @@ for goals_suffix in goals_suffixes:
                                                             rd.seed(seed)
                                                             env = TfEnv(normalize(PusherEnv(distractors=True)))
                                                             exp_name = str(
-                                                                'PU10_IL'
+                                                                'PU_IL'
                                                                 # +time.strftime("%D").replace("/", "")[0:4]
                                                                 + goals_suffix + "_"
                                                                 + str(seed)
@@ -232,7 +232,7 @@ for goals_suffix in goals_suffixes:
                                                                 snapshot_mode="all",
                                                                 python_command='python3',
                                                                 seed=seed,
-                                                                exp_prefix=str('PU10_IL_'
+                                                                exp_prefix=str('PU_IL_'
                                                                                +time.strftime("%D").replace("/", "")[0:4]),
                                                                 exp_name=exp_name,
                                                                 plot=False,

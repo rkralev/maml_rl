@@ -134,7 +134,7 @@ class PusherEnv(utils.EzPickle, Serializable):
         reward_near = - np.linalg.norm(vec_1)
         reward_dist = - np.linalg.norm(vec_2)
         reward_ctrl = - np.square(a).sum()
-        reward = 10.0*reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
+        reward = 1.0*reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
 
         self.mujoco.do_simulation(a, n_frames=self.mujoco.frame_skip)
         # extra added to copy rllab forward_dynamics.
