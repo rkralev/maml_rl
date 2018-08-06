@@ -95,7 +95,7 @@ for goals_suffix in goals_suffixes:
                                                                 rd.seed(seed)
                                                                 env = TfEnv(normalize(PusherEnv(distractors=True)))
                                                                 exp_name = str(
-                                                                    'PU_IL'
+                                                                    'PU10_IL'
                                                                     # +time.strftime("%D").replace("/", "")[0:4]
                                                                     + goals_suffix + "_"
                                                                     + str(seed)
@@ -199,7 +199,7 @@ for goals_suffix in goals_suffixes:
                                                                 algo = MAMLIL(
                                                                     env=env,
                                                                     policy=policy,
-                                                                    # load_policy="/home/rosen/paper_ready_experiments/pusher/best/PU_IL_1_flr0.01_dem24_ei5_as10_basl_1805_09_14/params.pkl",
+                                                                    # load_policy="/home/rosen/paper_ready_experiments/pusher/best/PU10_IL_1_flr0.01_dem24_ei5_as10_basl_1805_09_14/params.pkl",
                                                                     baseline=baseline,
                                                                     batch_size=fast_batch_size,  # number of trajs for alpha grad update
                                                                     max_path_length=max_path_length,
@@ -240,7 +240,7 @@ for goals_suffix in goals_suffixes:
                                                                     snapshot_mode="all",
                                                                     python_command='python3',
                                                                     seed=seed,
-                                                                    exp_prefix=str('PU_IL_'
+                                                                    exp_prefix=str('PU10_IL_'
                                                                                    +time.strftime("%D").replace("/", "")[0:4]),
                                                                     exp_name=exp_name,
                                                                     plot=False,
