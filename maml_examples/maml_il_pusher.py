@@ -26,17 +26,23 @@ INPUT_FEED = None
 import tensorflow as tf
 import time
 
-beta_adam_steps_list = [(1,10)]
+beta_adam_steps_list = [(1,1)]
 # beta_curve = [250,250,250,250,250,5,5,5,5,1,1,1,1,] # make sure to check maml_experiment_vars
 # beta_curve = [1000] # make sure to check maml_experiment_vars
-adam_curve = [50,50,50,50,50,50,50,10] # m
+adam_curves = [[50,50,50,50,50,50,50,50,10],
+               [50,50,50,50,50,50,10],
+               [50,50,50,50,1],
+               [20,20,1],
+               [10],
+               None,
+               ]  # m
 # adam_curve = None
 
-fast_learning_rates = [0.01]
+fast_learning_rates = [0.0003,0.001,0.003,0.01,0.03,0.1,0.3,1.0]
 baselines = ['linear',]  # linear GaussianMLP MAMLGaussianMLP zero
 env_option = ''
-# mode = "ec2"
-mode = "local"
+mode = "ec2"
+# mode = "local"
 extra_input = "onehot_exploration" # "onehot_exploration" "gaussian_exploration"
 # extra_input = None
 extra_input_dim = 5
@@ -44,7 +50,7 @@ extra_input_dim = 5
 goals_suffixes = [""] #["_200_40_1"] #,"_200_40_2", "_200_40_3","_200_40_4"]
 # goals_suffixes = ["_1000_40"]
 
-fast_batch_size_list = [20]  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
+fast_batch_size_list = [20,60]  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
 meta_batch_size_list = [40] # 40 @ 10 also works, but much less stable, 20 is fairly stable, 40 is more stable
 max_path_length = 100  # 100
 num_grad_updates = 1
@@ -81,163 +87,165 @@ for goals_suffix in goals_suffixes:
                                             for post_std_modifier_test in post_std_modifier_test_list:
                                                 for pre_std_modifier in pre_std_modifier_list:
                                                     for beta_steps, adam_steps in beta_adam_steps_list:
-                                                        for bas in baselines:
-                                                            stub(globals())
-                                                            tf.set_random_seed(seed)
-                                                            np.random.seed(seed)
-                                                            rd.seed(seed)
-                                                            env = TfEnv(normalize(PusherEnv(distractors=True)))
-                                                            exp_name = str(
-                                                                'PU_IL'
-                                                                # +time.strftime("%D").replace("/", "")[0:4]
-                                                                + goals_suffix + "_"
-                                                                + str(seed)
-                                                                # + str(envseed)
-                                                                + ("" if use_corr_term else "nocorr")
-                                                                # + str(int(use_maml))
-                                                                + ('_fbs' + str(fast_batch_size) if fast_batch_size!=20 else "")
-                                                                + ('_mbs' + str(meta_batch_size) if meta_batch_size!=40 else "")
-                                                                + ('_flr' + str(fast_learning_rate) if fast_learning_rate!=1.0 else "")
-                                                                + '_dem' + str(limit_demos_num)
-                                                                + ('_ei' + str(extra_input_dim) if type(
-                                                                    extra_input_dim) == int else "")
-                                                                # + '_tgm' + str(test_goals_mult)
-                                                                #     +'metalr_'+str(meta_step_size)
-                                                                #     +'_ngrad'+str(num_grad_updates)
-                                                                + ("_bs" + str(beta_steps) if beta_steps != 1 else "")
-                                                                + "_as" + str(adam_steps)
-                                                                # +"_net" + str(net_size[0])
-                                                                # +"_L2m" + str(l2loss_std_mult)
-                                                                + ("_prsm" + str(
-                                                                    pre_std_modifier) if pre_std_modifier != 1 else "")
-                                                                # + "_pstr" + str(post_std_modifier_train)
-                                                                # + "_posm" + str(post_std_modifier_test)
-                                                                #  + "_l2m" + str(l2loss_std_mult)
-                                                                + ("_" + ism if len(ism) > 0 else "")
-                                                                + "_bas" + bas[0]
-                                                                # +"_tfbe" # TF backend for baseline
-                                                                # +"_qdo" # quad dist optimizer
-                                                                + (("_bi" if bas_hnl == tf.identity else (
-                                                                    "_brel" if bas_hnl == tf.nn.relu else "_bth"))  # identity or relu or tanh for baseline
-                                                                   # + "_" + str(baslayers)  # size
-                                                                   + "_baslr" + str(bas_lr)
-                                                                   + "_basas" + str(basas) if bas[0] in ["G",
-                                                                                                         "M"] else "")  # baseline adam steps
-                                                                + ("r" if test_on_training_goals else "")
-                                                                + "_" + time.strftime("%d%m_%H_%M"))
+                                                        for adam_curve in adam_curves:
+                                                            for bas in baselines:
+                                                                stub(globals())
+                                                                tf.set_random_seed(seed)
+                                                                np.random.seed(seed)
+                                                                rd.seed(seed)
+                                                                env = TfEnv(normalize(PusherEnv(distractors=True)))
+                                                                exp_name = str(
+                                                                    'PU_IL'
+                                                                    # +time.strftime("%D").replace("/", "")[0:4]
+                                                                    + goals_suffix + "_"
+                                                                    + str(seed)
+                                                                    # + str(envseed)
+                                                                    + ("" if use_corr_term else "nocorr")
+                                                                    # + str(int(use_maml))
+                                                                    + ('_fbs' + str(fast_batch_size) if fast_batch_size!=20 else "")
+                                                                    + ('_mbs' + str(meta_batch_size) if meta_batch_size!=40 else "")
+                                                                    + ('_flr' + str(fast_learning_rate) if fast_learning_rate!=1.0 else "")
+                                                                    + '_dem' + str(limit_demos_num)
+                                                                    + ('_ei' + str(extra_input_dim) if type(
+                                                                        extra_input_dim) == int else "")
+                                                                    # + '_tgm' + str(test_goals_mult)
+                                                                    #     +'metalr_'+str(meta_step_size)
+                                                                    #     +'_ngrad'+str(num_grad_updates)
+                                                                    + ("_bs" + str(beta_steps) if beta_steps != 1 else "")
+                                                                    + "_as" + str(adam_steps)
+                                                                    + ("_ac" + str(len(adam_curve)) if adam_curve is not None else "")
+                                                                    # +"_net" + str(net_size[0])
+                                                                    # +"_L2m" + str(l2loss_std_mult)
+                                                                    + ("_prsm" + str(
+                                                                        pre_std_modifier) if pre_std_modifier != 1 else "")
+                                                                    # + "_pstr" + str(post_std_modifier_train)
+                                                                    # + "_posm" + str(post_std_modifier_test)
+                                                                    #  + "_l2m" + str(l2loss_std_mult)
+                                                                    + ("_" + ism if len(ism) > 0 else "")
+                                                                    + "_bas" + bas[0]
+                                                                    # +"_tfbe" # TF backend for baseline
+                                                                    # +"_qdo" # quad dist optimizer
+                                                                    + (("_bi" if bas_hnl == tf.identity else (
+                                                                        "_brel" if bas_hnl == tf.nn.relu else "_bth"))  # identity or relu or tanh for baseline
+                                                                       # + "_" + str(baslayers)  # size
+                                                                       + "_baslr" + str(bas_lr)
+                                                                       + "_basas" + str(basas) if bas[0] in ["G",
+                                                                                                             "M"] else "")  # baseline adam steps
+                                                                    + ("r" if test_on_training_goals else "")
+                                                                    + "_" + time.strftime("%d%m_%H_%M"))
 
 
-                                                            # policy=None,
-                                                            policy = MAMLGaussianMLPPolicy(
-                                                                name="policy",
-                                                                env_spec=env.spec,
-                                                                grad_step_size=fast_learning_rate,
-                                                                hidden_nonlinearity=tf.nn.relu,
-                                                                hidden_sizes=(100, 100),
-                                                                std_modifier=pre_std_modifier,
-                                                                # metalearn_baseline=(bas == "MAMLGaussianMLP"),
-                                                                extra_input_dim=(0 if extra_input is None else extra_input_dim),
-                                                            )
-                                                            if bas == 'zero':
-                                                                baseline = ZeroBaseline(env_spec=env.spec)
-                                                            elif bas == 'MAMLGaussianMLP':
-                                                                baseline = MAMLGaussianMLPBaseline(env_spec=env.spec,
-                                                                                                   learning_rate=bas_lr,
-                                                                                                   hidden_sizes=baslayers,
-                                                                                                   hidden_nonlinearity=bas_hnl,
-                                                                                                   repeat=basas,
-                                                                                                   repeat_sym=basas,
-                                                                                                   momentum=momentum,
-                                                                                                   extra_input_dim=( 0 if extra_input is None else extra_input_dim),
+                                                                # policy=None,
+                                                                policy = MAMLGaussianMLPPolicy(
+                                                                    name="policy",
+                                                                    env_spec=env.spec,
+                                                                    grad_step_size=fast_learning_rate,
+                                                                    hidden_nonlinearity=tf.nn.relu,
+                                                                    hidden_sizes=(100, 100),
+                                                                    std_modifier=pre_std_modifier,
+                                                                    # metalearn_baseline=(bas == "MAMLGaussianMLP"),
+                                                                    extra_input_dim=(0 if extra_input is None else extra_input_dim),
+                                                                )
+                                                                if bas == 'zero':
+                                                                    baseline = ZeroBaseline(env_spec=env.spec)
+                                                                elif bas == 'MAMLGaussianMLP':
+                                                                    baseline = MAMLGaussianMLPBaseline(env_spec=env.spec,
+                                                                                                       learning_rate=bas_lr,
+                                                                                                       hidden_sizes=baslayers,
+                                                                                                       hidden_nonlinearity=bas_hnl,
+                                                                                                       repeat=basas,
+                                                                                                       repeat_sym=basas,
+                                                                                                       momentum=momentum,
+                                                                                                       extra_input_dim=( 0 if extra_input is None else extra_input_dim),
 
-                                                                                                   # learn_std=False,
-                                                                                                   # use_trust_region=False,
-                                                                                                   # optimizer=QuadDistExpertOptimizer(
-                                                                                                   #      name="bas_optimizer",
-                                                                                                   #     #  tf_optimizer_cls=tf.train.GradientDescentOptimizer,
-                                                                                                   #     #  tf_optimizer_args=dict(
-                                                                                                   #     #      learning_rate=bas_lr,
-                                                                                                   #     #  ),
-                                                                                                   #     # # tf_optimizer_cls=tf.train.AdamOptimizer,
-                                                                                                   #     # max_epochs=200,
-                                                                                                   #     # batch_size=None,
-                                                                                                   #      adam_steps=basas
-                                                                                                   #     )
-                                                                                                   )
+                                                                                                       # learn_std=False,
+                                                                                                       # use_trust_region=False,
+                                                                                                       # optimizer=QuadDistExpertOptimizer(
+                                                                                                       #      name="bas_optimizer",
+                                                                                                       #     #  tf_optimizer_cls=tf.train.GradientDescentOptimizer,
+                                                                                                       #     #  tf_optimizer_args=dict(
+                                                                                                       #     #      learning_rate=bas_lr,
+                                                                                                       #     #  ),
+                                                                                                       #     # # tf_optimizer_cls=tf.train.AdamOptimizer,
+                                                                                                       #     # max_epochs=200,
+                                                                                                       #     # batch_size=None,
+                                                                                                       #      adam_steps=basas
+                                                                                                       #     )
+                                                                                                       )
 
-                                                            elif bas == 'linear':
-                                                                baseline = LinearFeatureBaseline(env_spec=env.spec)
-                                                            elif "GaussianMLP" in bas:
-                                                                baseline = GaussianMLPBaseline(env_spec=env.spec,
-                                                                                               regressor_args=dict(
-                                                                                                   hidden_sizes=baslayers,
-                                                                                                   hidden_nonlinearity=bas_hnl,
-                                                                                                   learn_std=False,
-                                                                                                   # use_trust_region=False,
-                                                                                                   # normalize_inputs=False,
-                                                                                                   # normalize_outputs=False,
-                                                                                                   optimizer=QuadDistExpertOptimizer(
-                                                                                                       name="bas_optimizer",
-                                                                                                       #  tf_optimizer_cls=tf.train.GradientDescentOptimizer,
-                                                                                                       #  tf_optimizer_args=dict(
-                                                                                                       #      learning_rate=bas_lr,
-                                                                                                       #  ),
-                                                                                                       # # tf_optimizer_cls=tf.train.AdamOptimizer,
-                                                                                                       # max_epochs=200,
-                                                                                                       # batch_size=None,
-                                                                                                       adam_steps=basas,
-                                                                                                       use_momentum_optimizer=True,
-                                                                                                   )))
-                                                            algo = MAMLIL(
-                                                                env=env,
-                                                                policy=policy,
-                                                                # load_policy="/home/rosen/paper_ready_experiments/pusher/best/PU_IL_1_flr0.01_dem24_ei5_as10_basl_1805_09_14/params.pkl",
-                                                                baseline=baseline,
-                                                                batch_size=fast_batch_size,  # number of trajs for alpha grad update
-                                                                max_path_length=max_path_length,
-                                                                meta_batch_size=meta_batch_size,  # number of tasks sampled for beta grad update
-                                                                num_grad_updates=num_grad_updates,  # number of alpha grad updates
-                                                                n_itr=800, #100
-                                                                make_video=False,
-                                                                use_maml=use_maml,
-                                                                use_pooled_goals=True,
-                                                                use_corr_term=use_corr_term,
-                                                                test_on_training_goals=test_on_training_goals,
-                                                                metalearn_baseline=(bas=="MAMLGaussianMLP"),
-                                                                # metalearn_baseline=False,
-                                                                limit_demos_num=limit_demos_num,
-                                                                test_goals_mult=test_goals_mult,
-                                                                step_size=meta_step_size,
-                                                                plot=False,
-                                                                beta_steps=beta_steps,
-                                                                adam_curve=adam_curve,
-                                                                adam_steps=adam_steps,
-                                                                pre_std_modifier=pre_std_modifier,
-                                                                l2loss_std_mult=l2loss_std_mult,
-                                                                importance_sampling_modifier=MOD_FUNC[ism],
-                                                                post_std_modifier_train=post_std_modifier_train,
-                                                                post_std_modifier_test=post_std_modifier_test,
-                                                                expert_trajs_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+"."+mode+goals_suffix+("_"+str(extra_input_dim) if type(extra_input_dim) == int else "")],
-                                                                # expert_trajs_suffix=("_"+str(extra_input_dim) if type(extra_input_dim) == int else ""),
-                                                                expert_trajs_suffix="", #"("_"+str(extra_input_dim) if type(extra_input_dim) == int else ""),
-                                                                seed=seed,
-                                                                extra_input=extra_input,
-                                                                extra_input_dim=(0 if extra_input is None else extra_input_dim),
-                                                                input_feed=INPUT_FEED
+                                                                elif bas == 'linear':
+                                                                    baseline = LinearFeatureBaseline(env_spec=env.spec)
+                                                                elif "GaussianMLP" in bas:
+                                                                    baseline = GaussianMLPBaseline(env_spec=env.spec,
+                                                                                                   regressor_args=dict(
+                                                                                                       hidden_sizes=baslayers,
+                                                                                                       hidden_nonlinearity=bas_hnl,
+                                                                                                       learn_std=False,
+                                                                                                       # use_trust_region=False,
+                                                                                                       # normalize_inputs=False,
+                                                                                                       # normalize_outputs=False,
+                                                                                                       optimizer=QuadDistExpertOptimizer(
+                                                                                                           name="bas_optimizer",
+                                                                                                           #  tf_optimizer_cls=tf.train.GradientDescentOptimizer,
+                                                                                                           #  tf_optimizer_args=dict(
+                                                                                                           #      learning_rate=bas_lr,
+                                                                                                           #  ),
+                                                                                                           # # tf_optimizer_cls=tf.train.AdamOptimizer,
+                                                                                                           # max_epochs=200,
+                                                                                                           # batch_size=None,
+                                                                                                           adam_steps=basas,
+                                                                                                           use_momentum_optimizer=True,
+                                                                                                       )))
+                                                                algo = MAMLIL(
+                                                                    env=env,
+                                                                    policy=policy,
+                                                                    # load_policy="/home/rosen/paper_ready_experiments/pusher/best/PU_IL_1_flr0.01_dem24_ei5_as10_basl_1805_09_14/params.pkl",
+                                                                    baseline=baseline,
+                                                                    batch_size=fast_batch_size,  # number of trajs for alpha grad update
+                                                                    max_path_length=max_path_length,
+                                                                    meta_batch_size=meta_batch_size,  # number of tasks sampled for beta grad update
+                                                                    num_grad_updates=num_grad_updates,  # number of alpha grad updates
+                                                                    n_itr=800, #100
+                                                                    make_video=False,
+                                                                    use_maml=use_maml,
+                                                                    use_pooled_goals=True,
+                                                                    use_corr_term=use_corr_term,
+                                                                    test_on_training_goals=test_on_training_goals,
+                                                                    metalearn_baseline=(bas=="MAMLGaussianMLP"),
+                                                                    # metalearn_baseline=False,
+                                                                    limit_demos_num=limit_demos_num,
+                                                                    test_goals_mult=test_goals_mult,
+                                                                    step_size=meta_step_size,
+                                                                    plot=False,
+                                                                    beta_steps=beta_steps,
+                                                                    adam_curve=adam_curve,
+                                                                    adam_steps=adam_steps,
+                                                                    pre_std_modifier=pre_std_modifier,
+                                                                    l2loss_std_mult=l2loss_std_mult,
+                                                                    importance_sampling_modifier=MOD_FUNC[ism],
+                                                                    post_std_modifier_train=post_std_modifier_train,
+                                                                    post_std_modifier_test=post_std_modifier_test,
+                                                                    expert_trajs_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+"."+mode+goals_suffix+("_"+str(extra_input_dim) if type(extra_input_dim) == int else "")],
+                                                                    # expert_trajs_suffix=("_"+str(extra_input_dim) if type(extra_input_dim) == int else ""),
+                                                                    expert_trajs_suffix="", #"("_"+str(extra_input_dim) if type(extra_input_dim) == int else ""),
+                                                                    seed=seed,
+                                                                    extra_input=extra_input,
+                                                                    extra_input_dim=(0 if extra_input is None else extra_input_dim),
+                                                                    input_feed=INPUT_FEED
 
-                                                            )
-                                                            run_experiment_lite(
-                                                                algo.train(),
-                                                                n_parallel=1,
-                                                                snapshot_mode="all",
-                                                                python_command='python3',
-                                                                seed=seed,
-                                                                exp_prefix=str('PU_IL_'
-                                                                               +time.strftime("%D").replace("/", "")[0:4]),
-                                                                exp_name=exp_name,
-                                                                plot=False,
-                                                                sync_s3_pkl=True,
-                                                                mode=mode,
-                                                                terminate_machine=True,
-                                                            )
+                                                                )
+                                                                run_experiment_lite(
+                                                                    algo.train(),
+                                                                    n_parallel=1,
+                                                                    snapshot_mode="all",
+                                                                    python_command='python3',
+                                                                    seed=seed,
+                                                                    exp_prefix=str('PU_IL_'
+                                                                                   +time.strftime("%D").replace("/", "")[0:4]),
+                                                                    exp_name=exp_name,
+                                                                    plot=False,
+                                                                    sync_s3_pkl=True,
+                                                                    mode=mode,
+                                                                    terminate_machine=True,
+                                                                )
 
