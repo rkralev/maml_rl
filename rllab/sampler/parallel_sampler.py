@@ -73,6 +73,7 @@ def terminate_task(scope=None):
 
 def _worker_set_seed(_, seed):
     logger.log("Setting seed to %d" % seed)
+    logger.log("Setting seed to %d" % seed)
     ext.set_seed(seed)
 
 
