@@ -189,26 +189,35 @@ seed_ = None
 
 
 def set_seed(seed):
+    print("debug, got to here1")
     seed %= 4294967294
+    print("debug, got to here2")
     global seed_
+    print("debug, got to here3")
     seed_ = seed
+    print("debug, got to here4")
     import lasagne
+    print("debug, got to here5")
     random.seed(seed)
+    print("debug, got to here6")
     np.random.seed(seed)
+    print("debug, got to here7")
     lasagne.random.set_rng(np.random.RandomState(seed))
+    print("debug, got to here8")
     try:
         import tensorflow as tf
         print("debug, tf_version", tf.__version__)
         tf.set_random_seed(seed)
     except Exception as e:
+        print("debug could not load tf")
         print(e)
-    print((
-        colorize(
-            'using seed %s' % (str(seed)),
-            'green'
-        )
-    ))
-
+    # print((
+    #     colorize(
+    #         'using seed %s' % (str(seed)),
+    #         'green'
+    #     )
+    # ))
+    print('using seed', str(seed))
 
 def get_seed():
     return seed_

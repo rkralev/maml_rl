@@ -37,7 +37,7 @@ adam_curves = [[50,50,50,50,50,50,50,50,10]] #,
                # ]  # m
 # adam_curve = None
 
-fast_learning_rates = [0.001] # [0.0003,0.001,0.003,0.01,0.03,0.1,0.3,1.0]
+fast_learning_rates = [1.0] # [0.0003,0.001,0.003,0.01,0.03,0.1,0.3,1.0]
 baselines = ['linear',]  # linear GaussianMLP MAMLGaussianMLP zero
 env_option = ''
 mode = "ec2"
@@ -121,7 +121,7 @@ for goals_suffix in goals_suffixes:
                                                                     # + "_posm" + str(post_std_modifier_test)
                                                                     #  + "_l2m" + str(l2loss_std_mult)
                                                                     + ("_" + ism if len(ism) > 0 else "")
-                                                                    + "_bas" + bas[0]
+                                                                    + ("_bas" + bas[0] if bas != "linear" else "")
                                                                     # +"_tfbe" # TF backend for baseline
                                                                     # +"_qdo" # quad dist optimizer
                                                                     + (("_bi" if bas_hnl == tf.identity else (
@@ -245,6 +245,6 @@ for goals_suffix in goals_suffixes:
                                                                     plot=False,
                                                                     sync_s3_pkl=True,
                                                                     mode=mode,
-                                                                    terminate_machine=True,
+                                                                    terminate_machine=False,
                                                                 )
 

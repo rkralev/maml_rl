@@ -75,6 +75,7 @@ def _worker_set_seed(_, seed):
     logger.log("Setting seed to %d" % seed)
     logger.log("Setting seed to %d" % seed)
     ext.set_seed(seed)
+    logger.log("Done Setting seed to %d" % seed)
 
 
 def set_seed(seed):

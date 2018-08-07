@@ -77,30 +77,35 @@ def run_experiment(argv):
         parallel_sampler.initialize(n_parallel=args.n_parallel)
         if args.seed is not None:
             parallel_sampler.set_seed(args.seed)
-
+    logger.log("debug1")
     if args.plot:
+        logger.log("args.plot")
         from rllab.plotter import plotter
+        logger.log("args.plot")
         plotter.init_worker()
-
+    logger.log("debug2")
     if args.log_dir is None:
+        logger.log("args.logdir1")
         log_dir = osp.join(default_log_dir, args.exp_name)
     else:
+        logger.log("args.logdir2")
         log_dir = args.log_dir
     tabular_log_file = osp.join(log_dir, args.tabular_log_file)
     tabular_log_file2 = osp.join(log_dir, args.tabular_log_file2) if args.tabular_log_file2 is not None else osp.join(log_dir,"progress %s.csv" %args.exp_name)
     text_log_file = osp.join(log_dir, args.text_log_file)
     params_log_file = osp.join(log_dir, args.params_log_file)
-
+    logger.log("debug3")
     if args.variant_data is not None:
         variant_data = pickle.loads(base64.b64decode(args.variant_data))
         variant_log_file = osp.join(log_dir, args.variant_log_file)
         logger.log_variant(variant_log_file, variant_data)
     else:
         variant_data = None
-
+    logger.log("debug4")
     if not args.use_cloudpickle:
         logger.log_parameters_lite(params_log_file, args)
 
+    logger.log("debug5")
     logger.add_text_output(text_log_file)
     logger.add_tabular_output(tabular_log_file)
     logger.add_tabular_output(tabular_log_file2)
@@ -111,7 +116,7 @@ def run_experiment(argv):
     logger.set_snapshot_gap(args.snapshot_gap)
     logger.set_log_tabular_only(args.log_tabular_only)
     logger.push_prefix("[%s] " % args.exp_name)
-
+    logger.log("debug6")
     if args.resume_from is not None:
         data = joblib.load(args.resume_from)
         assert 'algo' in data
@@ -129,14 +134,14 @@ def run_experiment(argv):
             if is_iterable(maybe_iter):
                 for _ in maybe_iter:
                     pass
-
+    logger.log("debug7")
     logger.set_snapshot_mode(prev_mode)
     logger.set_snapshot_dir(prev_snapshot_dir)
     logger.remove_tabular_output(tabular_log_file)
     logger.remove_tabular_output(tabular_log_file2)
     logger.remove_text_output(text_log_file)
     logger.pop_prefix()
-
+    logger.log("debug8")
 
 if __name__ == "__main__":
     run_experiment(sys.argv)
