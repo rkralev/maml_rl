@@ -17,6 +17,7 @@ BIG = 1e6
 
 class PusherEnv(utils.EzPickle, Serializable):
     def __init__(self, xml_file=None, distractors=True, *args, **kwargs):
+        print("initializing environment")
         utils.EzPickle.__init__(self)
         print("using xml_file", xml_file)
         if xml_file is None:
@@ -117,7 +118,7 @@ class PusherEnv(utils.EzPickle, Serializable):
                 # print("normal_order", int(xml_file[-5]))
                 self.shuffle_order = [0, 1]
             self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
-            self.viewer_setup()
+            # self.viewer_setup()
         self.reset_model()
         return self.get_current_obs()
 

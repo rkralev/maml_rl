@@ -269,7 +269,7 @@ class BaseSampler(Sampler):
             logger.record_tabular(prefix + 'StdReturn', np.std(undiscounted_returns))
             logger.record_tabular(prefix + 'MaxReturn', np.max(undiscounted_returns))
             logger.record_tabular(prefix + 'MinReturn', np.min(undiscounted_returns))
-            if "env_infos" in paths[0].keys():
+            if "env_infos" in paths[0].keys() and "success_left" in paths[0]["env_infos"].keys():
                 logger.record_tabular(prefix + 'success_left', eval_success_left(paths))
                 logger.record_tabular(prefix + 'success_right', eval_success_right(paths))
             else:
