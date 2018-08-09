@@ -283,7 +283,7 @@ class BaseSampler(Sampler):
 
 def eval_success_left(paths):
     if 'env_infos' not in paths[0].keys():
-        return -1
+        return float('nan')
     else:
         left_attempts = []
         for path in paths:
@@ -295,7 +295,7 @@ def eval_success_left(paths):
 
 def eval_success_right(paths):
     if 'env_infos' not in paths[0].keys():
-        return -1
+        return float('nan')
     else:
         right_attempts = []
         for path in paths:

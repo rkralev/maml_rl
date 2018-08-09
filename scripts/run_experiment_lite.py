@@ -124,14 +124,23 @@ def run_experiment(argv):
         algo.train()
     else:
         # read from stdin
+        logger.log("debug6.5")
         if args.use_cloudpickle:
+            logger.log("debug6.5.1")
             import cloudpickle
             method_call = cloudpickle.loads(base64.b64decode(args.args_data))
             method_call(variant_data)
         else:
+            logger.log("debug6.5.2")
             data = pickle.loads(base64.b64decode(args.args_data))
+            logger.log("debug6.5.2.1")
+            logger.log(str(args.args_data))
             maybe_iter = concretize(data)
+            logger.log("debug6.5.2.2")
+
             if is_iterable(maybe_iter):
+                logger.log("debug6.5.2.3")
+
                 for _ in maybe_iter:
                     pass
     logger.log("debug7")

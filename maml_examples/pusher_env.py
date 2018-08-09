@@ -11,23 +11,27 @@ import os.path
 # import mujoco_py
 # from mujoco_py.mjlib import mjlib
 from PIL import Image
+import rllab.misc.logger as logger
+
 
 BIG = 1e6
 
 
 class PusherEnv(utils.EzPickle, Serializable):
     def __init__(self, xml_file=None, distractors=True, *args, **kwargs):
-        print("initializing environment")
+        logger.log("initializing environment pusher")
         utils.EzPickle.__init__(self)
-        print("using xml_file", xml_file)
+        logger.log("using xml_file", xml_file)
         if xml_file is None:
             xml_file = 'pusher.xml'
-
         self.__class__.FILE = xml_file
         self.include_distractors = distractors
-        self.test_dir = "/home/rosen/FaReLI_data/pushing/test2_paired_push_demos_noimg/"
-        self.train_dir = "/home/rosen/FaReLI_data/pushing/paired_push_demos_noimg/"
-        self.xml_dir = "/home/rosen/FaReLI_data/pushing/push_textures/sim_push_xmls/"
+        # self.test_dir = "/home/rosen/FaReLI_data/pushing/test2_paired_push_demos_noimg/"
+        self.test_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/test2_paired_push_demos_noimg1/"
+        # self.train_dir = "/home/rosen/FaReLI_data/pushing/paired_push_demos_noimg/"
+        self.train_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/paired_push_demos_noimg/"
+        # self.xml_dir = "/home/rosen/FaReLI_data/pushing/push_textures/sim_push_xmls/"
+        self.xml_dir = "/root/code/rllab/vendor/mujoco_models/push_textures/sim_push_xmls/"
         self.goal_num = None
         self.test = False
         self.target_on_left=None
@@ -81,7 +85,7 @@ class PusherEnv(utils.EzPickle, Serializable):
     def reset(self, reset_args=None, **kwargs):
         # if True: #self.reset_xml_on_reset:
         if reset_args is None:
-            print("Debug, warning, reset_args for env is None")
+            logger.log("Debug, warning, reset_args for env is None")
         goal = reset_args
         if goal is not None:
             assert len(goal)==2, "wrong size goal"

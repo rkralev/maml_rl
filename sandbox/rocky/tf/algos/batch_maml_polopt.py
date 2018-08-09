@@ -137,7 +137,7 @@ class BatchMAMLPolopt(RLAlgorithm):
         self.testing_itrs = TESTING_ITRS
         if self.metalearn_baseline:
             self.testing_itrs.insert(0,0)
-        print("test_on_training_goals", self.test_on_training_goals)
+        logger.log("test_on_training_goals %s" % self.test_on_training_goals)
         self.limit_demos_num = limit_demos_num
         self.test_goals_mult = test_goals_mult
         self.pre_std_modifier = pre_std_modifier

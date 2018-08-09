@@ -17,9 +17,9 @@ EXPERT_TRAJ_LOCATION_DICT = {
     ".local":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/main_1/",
     ".local_5":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/main_1/",
     ".local_2":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/main_1/",
-    ".ec2":          "/root/code/rllab/saved_expert_traj/PUSHER/main_1/",
-    ".ec2_5":          "/root/code/rllab/saved_expert_traj/PUSHER/main_1/",
-    ".ec2_2":          "/root/code/rllab/saved_expert_traj/PUSHER/main_1/",
+    ".ec2":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
+    ".ec2_5":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
+    ".ec2_2":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
 #     ".local_1000_40":  "/home/rosen/maml_rl/saved_expert_traj/PUSHER/R7-ET-individual_noise0.1/",
 #     ".local_100_40_1":   "/home/rosen/maml_rl/saved_expert_traj/PUSHER/R7-ET-noise0.1-100-40/",  # 100 goals, 40 goals per itr, 40 et per goal
 #     ".local_200_40_1":   "/home/rosen/maml_rl/saved_expert_traj/PUSHER/R7-ET-noise0.1-200-40-1/", # 200 goals, 40 goals per itr, 40 et per goal

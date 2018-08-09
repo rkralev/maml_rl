@@ -7,12 +7,14 @@ from rllab.envs.base import Step
 from PIL import Image
 
 from rllab.core.serializable import Serializable
+import rllab.misc.logger as logger
 
 
 class Reacher7DofMultitaskEnv(
     mujoco_env.MujocoEnv, Serializable
 ):
     def __init__(self, distance_metric_order=None, *args, **kwargs):
+        logger.log("initializing environment r7dof")
         self.goal = None
         self.__class__.FILE = 'r7dof_versions/reacher_7dof.xml'
         if "envseed" in kwargs.keys():
