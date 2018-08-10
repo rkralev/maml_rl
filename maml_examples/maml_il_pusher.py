@@ -30,16 +30,16 @@ import time
 beta_adam_steps_list = [(1,1)]
 # beta_curve = [250,250,250,250,250,5,5,5,5,1,1,1,1,] # make sure to check maml_experiment_vars
 # beta_curve = [1000] # make sure to check maml_experiment_vars
-adam_curves = [[50,50,50,50,50,50,50,50,10],
-               [50,50,50,50,50,50,10],
-               [50,50,50,50,1],
-               [20,20,1],
-               [10],
-               None,
+adam_curves = [[50,50,50,50,50,50,50,50,1],
+               # [50,50,50,50,50,50,1],
+               # [50,50,50,50,1],
+               # [20,20,1],
+               # [10],
+               # None,
                ]  # m
 # adam_curve = None
 
-fast_learning_rates = [0.0] # [0.0003,0.001,0.003,0.01,0.03,0.1,0.3,1.0]
+fast_learning_rates = [0.0, 0.01] # [0.00003,0.0001,0.0003,0.001,0.003,0.01,0.03,0.1,0.3,1.0,3.0]
 baselines = ['linear',]  # linear GaussianMLP MAMLGaussianMLP zero
 env_option = ''
 mode = "ec2"
@@ -51,7 +51,7 @@ extra_input_dim = 5
 goals_suffixes = [""] #["_200_40_1"] #,"_200_40_2", "_200_40_3","_200_40_4"]
 # goals_suffixes = ["_1000_40"]
 
-fast_batch_size_list = [20,60] # [20,60]  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
+fast_batch_size_list = [20] # [20,60]  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
 meta_batch_size_list = [40] # 40 @ 10 also works, but much less stable, 20 is fairly stable, 40 is more stable
 max_path_length = 100  # 100
 num_grad_updates = 1
@@ -97,7 +97,7 @@ for goals_suffix in goals_suffixes:
                                                                 env = TfEnv(normalize(PusherEnv(distractors=True)))
                                                                 # env = TfEnv(normalize(Reacher7DofMultitaskEnv()))
                                                                 exp_name = str(
-                                                                    'PU10_IL'
+                                                                    'PUDEBUG_IL'
                                                                     # +time.strftime("%D").replace("/", "")[0:4]
                                                                     + goals_suffix + "_"
                                                                     + str(seed)
@@ -201,7 +201,7 @@ for goals_suffix in goals_suffixes:
                                                                 algo = MAMLIL(
                                                                     env=env,
                                                                     policy=policy,
-                                                                    # load_policy="/home/rosen/paper_ready_experiments/pusher/best/PU10_IL_1_flr0.01_dem24_ei5_as10_basl_1805_09_14/params.pkl",
+                                                                    # load_policy="/home/rosen/paper_ready_experiments/pusher/best/PU_IL_1_flr0.01_dem24_ei5_as10_basl_1805_09_14/params.pkl",
                                                                     baseline=baseline,
                                                                     batch_size=fast_batch_size,  # number of trajs for alpha grad update
                                                                     max_path_length=max_path_length,
@@ -242,7 +242,7 @@ for goals_suffix in goals_suffixes:
                                                                     snapshot_mode="all",
                                                                     python_command='python3',
                                                                     seed=seed,
-                                                                    exp_prefix=str('PU10_IL_'
+                                                                    exp_prefix=str('PUDEBUG_IL_'
                                                                                    +time.strftime("%D").replace("/", "")[0:4]),
                                                                     exp_name=exp_name,
                                                                     plot=False,

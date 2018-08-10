@@ -27,10 +27,10 @@ class PusherEnv(utils.EzPickle, Serializable):
         self.__class__.FILE = xml_file
         self.include_distractors = distractors
         # self.test_dir = "/home/rosen/FaReLI_data/pushing/test2_paired_push_demos_noimg/"
-        self.test_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/test2_paired_push_demos_noimg1/"
         # self.train_dir = "/home/rosen/FaReLI_data/pushing/paired_push_demos_noimg/"
-        self.train_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/paired_push_demos_noimg/"
         # self.xml_dir = "/home/rosen/FaReLI_data/pushing/push_textures/sim_push_xmls/"
+        self.test_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/test2_paired_push_demos_noimg1/"
+        self.train_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/paired_push_demos_noimg/"
         self.xml_dir = "/root/code/rllab/vendor/mujoco_models/push_textures/sim_push_xmls/"
         self.goal_num = None
         self.test = False
@@ -103,7 +103,7 @@ class PusherEnv(utils.EzPickle, Serializable):
                 # print("debug,xml_file", xml_file)
                 if int(xml_file[-5])%2==0:
                     # print("inverted_order", int(xml_file[-5]))
-                    self.shuffle_order=[1,0]
+                    self.shuffle_order=[0,1] # TODO: flip back, this is set to [0,1] just for debugging purposes
                 else:
                     # print("normal_order",int(xml_file[-5]))
                     self.shuffle_order=[0,1]
@@ -117,7 +117,7 @@ class PusherEnv(utils.EzPickle, Serializable):
 
             if int(xml_file[-5]) % 2 == 0:
                 # print("inverted_order", int(xml_file[-5]))
-                self.shuffle_order = [1, 0]
+                self.shuffle_order = [0, 1]  # TODO: flip back, this is set to [0,1] just for debugging purposes
             else:
                 # print("normal_order", int(xml_file[-5]))
                 self.shuffle_order = [0, 1]
@@ -138,8 +138,10 @@ class PusherEnv(utils.EzPickle, Serializable):
 
         reward_near = - np.linalg.norm(vec_1)
         reward_dist = - np.linalg.norm(vec_2)
+        # reward_near = - np.square(vec_1).sum()
+        # reward_dist = - np.square(vec_2).sum()
         reward_ctrl = - np.square(a).sum()
-        reward = 10.0*reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
+        reward = 1.0*reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
 
         self.mujoco.do_simulation(a, n_frames=self.mujoco.frame_skip)
         # extra added to copy rllab forward_dynamics.
@@ -224,6 +226,7 @@ class PusherEnv(utils.EzPickle, Serializable):
     def _get_obs(self):
         if self.include_distractors:
             if self.shuffle_order[0] == 0:
+                logger.log("debug1")
                 return np.concatenate([
                     self.mujoco.model.data.qpos.flat[:7],
                     self.mujoco.model.data.qvel.flat[:7],
@@ -233,6 +236,7 @@ class PusherEnv(utils.EzPickle, Serializable):
                     self.mujoco.get_body_com("goal"),
                 ])
             else:
+                logger.log("debug2")
                 return np.concatenate([
                     self.mujoco.model.data.qpos.flat[:7],
                     self.mujoco.model.data.qvel.flat[:7],
@@ -243,6 +247,7 @@ class PusherEnv(utils.EzPickle, Serializable):
                 ])
         else:
             if not self.onehot:
+                logger.log("debug3")
                 return np.concatenate([
                     self.mujoco.model.data.qpos.flat[:7],
                     self.mujoco.model.data.qvel.flat[:7],
@@ -251,6 +256,7 @@ class PusherEnv(utils.EzPickle, Serializable):
                     self.mujoco.get_body_com("goal"),
                 ])
             else:
+                logger.log("debug4")
                 extra = np.zeros(self.onehot_dim)
                 if self.onehot_position == -1:
                     pass  # we keep the vector zeroed out
