@@ -82,10 +82,9 @@ class QuadDistExpertOptimizer(Serializable):
         self._dummy_loss = dummy_loss
 
         if self._use_momentum_optimizer:
-            print("debug31, setting momentum optimizer", self._name)
             self._adam=tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.5, name=self._name)
+            assert False, "not supported at the moment"
         else:
-            print("debug31, setting Adam optimizer", self._name)
             self._adam = tf.train.AdamOptimizer(name=self._name)
         self._optimizer_vars_initializers = [var.initializer for var in tf.global_variables() if self._name in var.name]
 
@@ -175,9 +174,10 @@ class QuadDistExpertOptimizer(Serializable):
         # for key in feed_dict.keys():
         #     if 'obs' in key.name:
                 # print("debug567", key, np.shape(feed_dict[key]))
-        init_loss = sess.run(self._loss, feed_dict=feed_dict)
-        print("init_loss", init_loss)
-        min_loss = init_loss
+        adam_loss = sess.run(self._loss, feed_dict=feed_dict)
+        logger.log("adam_loss %s" % adam_loss)
+        logger.record_tabular("AdamLoss", adam_loss)
+        min_loss = adam_loss
         for i in range(steps):
             # BREAKER: limit the amount of adam steps you take by measuring the reduction in loss. Quite costly.
             # loss_val = sess.run(self._loss, feed_dict=feed_dict)
@@ -193,7 +193,7 @@ class QuadDistExpertOptimizer(Serializable):
             # print("debug02", sess.run(self._correction_term, feed_dict=feed_dict)[0][0][0:4])
                 # print("debug03", sess.run(self.new_gradients, feed_dict=feed_dict))
             sess.run(self._train_step, feed_dict=feed_dict)
-        return init_loss
+        return adam_loss
 
 
     def reset_optimizer(self):
@@ -202,7 +202,7 @@ class QuadDistExpertOptimizer(Serializable):
 
 def compute_numeric_grad(loss, params, feed_dict, epsilon=1e-10):
     sess = tf.get_default_session()
-    # print("to be safe:")  <- this code worked to confirm we get the same gradients as above
+    # we used this code to debug the gradients
     # grad = tf.gradients(ys=loss, xs=[params[key] for key in params.keys()])
     # print("debug02, tf gradients again", sess.run(grad, feed_dict=feed_dict))
     loss_theta = sess.run(loss, feed_dict=feed_dict)

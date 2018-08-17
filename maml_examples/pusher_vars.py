@@ -3,7 +3,9 @@
 # PUSHER_GOALS_LOCATION = '/home/rosen/maml_rl/saved_goals/PUSHER/goals_pool1_100_40.pkl'
 # PUSHER_GOALS_LOCATION_EC2 = '/root/code/rllab/saved_goals/PUSHER/goals_pool1.pkl'
 
-PUSHER_GOALS_LOCATION = '/home/rosen/maml_rl/saved_expert_traj/PUSHER/main_1/goals_pool.pkl'
+# PUSHER_GOALS_LOCATION = '/home/rosen/maml_rl/saved_expert_traj/PUSHER/main_1/goals_pool.pkl'
+# PUSHER_GOALS_LOCATION = '/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise/goals_pool.pkl'
+PUSHER_GOALS_LOCATION = '/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise_dummy/goals_pool.pkl'
 
 
 ENV_OPTIONS = {
@@ -17,9 +19,16 @@ EXPERT_TRAJ_LOCATION_DICT = {
     ".local":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/main_1/",
     ".local_5":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/main_1/",
     ".local_2":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/main_1/",
+    ".local_noise":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise/",
+    ".local_noise_dummy":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise_dummy/",
+    ".local_noise_5":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise/",
+    ".local_noise_2":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise/",
     ".ec2":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
     ".ec2_5":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
     ".ec2_2":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
+    ".ec2_noise":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
+    ".ec2_noise_5":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
+    ".ec2_noise_2":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
 #     ".local_1000_40":  "/home/rosen/maml_rl/saved_expert_traj/PUSHER/R7-ET-individual_noise0.1/",
 #     ".local_100_40_1":   "/home/rosen/maml_rl/saved_expert_traj/PUSHER/R7-ET-noise0.1-100-40/",  # 100 goals, 40 goals per itr, 40 et per goal
 #     ".local_200_40_1":   "/home/rosen/maml_rl/saved_expert_traj/PUSHER/R7-ET-noise0.1-200-40-1/", # 200 goals, 40 goals per itr, 40 et per goal

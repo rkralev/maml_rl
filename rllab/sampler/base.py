@@ -272,9 +272,9 @@ class BaseSampler(Sampler):
             if "env_infos" in paths[0].keys() and "success_left" in paths[0]["env_infos"].keys():
                 logger.record_tabular(prefix + 'success_left', eval_success_left(paths))
                 logger.record_tabular(prefix + 'success_right', eval_success_right(paths))
-            else:
-                logger.record_tabular(prefix + 'success_left', -1.0)
-                logger.record_tabular(prefix + 'success_right', -1.0)
+            # else:
+                # logger.record_tabular(prefix + 'success_left', -1.0)
+                # logger.record_tabular(prefix + 'success_right', -1.0)
         # if metalearn_baseline:
         #     if hasattr(self.algo.baseline, "revert"):
         #         self.algo.baseline.revert()

@@ -632,5 +632,3 @@ class MAMLGaussianConvMLPPolicy(StochasticPolicy, Serializable):
         if load_params:
             tf.get_default_session().run(tf.variables_initializer(self.get_params(all_params=True)))
             self.set_param_values(d["params"], all_params=True)
-
-

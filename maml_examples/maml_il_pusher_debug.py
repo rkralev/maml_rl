@@ -30,24 +30,17 @@ import time
 beta_adam_steps_list = [(1,1)]
 # beta_curve = [250,250,250,250,250,5,5,5,5,1,1,1,1,] # make sure to check maml_experiment_vars
 # beta_curve = [1000] # make sure to check maml_experiment_vars
-adam_curves = [[50,50,50,50,50,50,50,50,1],
-                # [50,50,50,50,50,50,1],
-                # [50,50,50,50,1],
-                # [20,20,1],
-                # [10],
-                # None,
-                ]  # m
-#adam_curves = [None]
+adam_curves = [[100]]
 
-fast_learning_rates = [0.001] #[0.0001,0.001,0.01,0.1,1.0]
+fast_learning_rates = [0.001]
 baselines = ['linear',]  # linear GaussianMLP MAMLGaussianMLP zero
 env_option = ''
 # mode = "ec2"
 mode = "local"
-extra_input = "onehot_exploration" # "onehot_exploration" "gaussian_exploration"
-# extra_input = None
-extra_input_dim = 5
-# extra_input_dim = None
+# extra_input = "onehot_exploration" # "onehot_exploration" "gaussian_exploration"
+extra_input = None
+# extra_input_dim = 5
+extra_input_dim = None
 goals_suffixes = ["_noise"] #["_200_40_1"] #,"_200_40_2", "_200_40_3","_200_40_4"]
 # goals_suffixes = ["_1000_40"]
 
@@ -57,8 +50,8 @@ max_path_length = 100  # 100
 num_grad_updates = 1
 meta_step_size = 0.01
 pre_std_modifier_list = [1.0]
-post_std_modifier_train_list = [0.00001]
-post_std_modifier_test_list = [0.00001]
+post_std_modifier_train_list = [0.000001]
+post_std_modifier_test_list = [0.000001]
 l2loss_std_mult_list = [0.0]
 importance_sampling_modifier_list = ['']  #'', 'clip0.5_'
 limit_demos_num_list = [None] #[1]  # 40
@@ -73,7 +66,7 @@ use_corr_term = True
 seeds = [1]
 envseeds = [6]
 use_maml = True
-test_on_training_goals = False
+test_on_training_goals = True
 for goals_suffix in goals_suffixes:
     for fast_learning_rate in fast_learning_rates:
         for envseed in envseeds:
@@ -94,10 +87,10 @@ for goals_suffix in goals_suffixes:
                                                                 tf.set_random_seed(seed)
                                                                 np.random.seed(seed)
                                                                 rd.seed(seed)
-                                                                env = TfEnv(normalize(PusherEnv(distractors=True)))
+                                                                env = TfEnv(normalize(PusherEnv(distractors=True, debug=True)))
                                                                 # env = TfEnv(normalize(Reacher7DofMultitaskEnv()))
                                                                 exp_name = str(
-                                                                    'PU_IL'
+                                                                    'PUDEBUG_IL'
                                                                     # +time.strftime("%D").replace("/", "")[0:4]
                                                                     + goals_suffix + "_"
                                                                     + str(seed)
@@ -233,7 +226,9 @@ for goals_suffix in goals_suffixes:
                                                                     seed=seed,
                                                                     extra_input=extra_input,
                                                                     extra_input_dim=(0 if extra_input is None else extra_input_dim),
-                                                                    input_feed=INPUT_FEED
+                                                                    input_feed=INPUT_FEED,
+                                                                    debug_pusher=True,
+
 
                                                                 )
                                                                 run_experiment_lite(
@@ -242,7 +237,7 @@ for goals_suffix in goals_suffixes:
                                                                     snapshot_mode="all",
                                                                     python_command='python3',
                                                                     seed=seed,
-                                                                    exp_prefix=str('PU_IL_'
+                                                                    exp_prefix=str('PUDEBUG_IL_'
                                                                                    +time.strftime("%D").replace("/", "")[0:4]),
                                                                     exp_name=exp_name,
                                                                     plot=False,

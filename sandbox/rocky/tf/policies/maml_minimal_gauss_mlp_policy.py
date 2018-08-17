@@ -530,7 +530,7 @@ class MAMLGaussianMLPPolicy(StochasticPolicy, Serializable):
     def set_param_values(self, flattened_params, all_params=False, **tags):
         debug = tags.pop("debug", False)
         # print("debug, all params", all_params) True
-        print("debug, param shapes", self.get_param_shapes(all_params, **tags))
+        # print("debug, param shapes", self.get_param_shapes(all_params, **tags))
         param_values = unflatten_tensors(
             flattened_params, self.get_param_shapes(all_params, **tags))
         ops = []

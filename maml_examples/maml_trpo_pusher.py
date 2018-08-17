@@ -17,11 +17,11 @@ baselines = ['linear']
 env_option = default_pusher_env_option
 nonlinearity_option = 'relu'  #A1=relu, A2=reluh, B1=relu
 net_size = 100
-fast_learning_rates = [0.01]  #
+fast_learning_rates = [0.00]  #
 fast_batch_size = 20  #
 meta_batch_size = 40  #
 num_grad_updates = 1  # 1
-n_itr = 200  #801
+n_itr = 800  #801
 max_path_length = 100  # A1=100, B1=50
 meta_step_size = 0.01  # 0.01
 pre_std_modifier_list = [1.0]
@@ -42,15 +42,15 @@ for post_std_modifier_train in post_std_modifier_train_list:
                     #xml_filepath ='home/rosen/rllab_copy/vendor/local_mujoco_models/ensure_woodtable_distractor_pusher%s.xml' % seed
                     env = TfEnv(normalize(PusherEnv(distractors=True)))
 
-                    policy = MAMLGaussianMLPPolicy(
-                        name="policy",
-                        env_spec=env.spec,
-                        grad_step_size=fast_learning_rate,
-                        hidden_nonlinearity=HIDDEN_NONLINEARITY[nonlinearity_option],
-                        hidden_sizes=(net_size, net_size),
-                        output_nonlinearity=OUTPUT_NONLINEARITY[nonlinearity_option],
-                        std_modifier=pre_std_modifier,
-                    )
+                    # policy = MAMLGaussianMLPPolicy(
+                    #     name="policy",
+                    #     env_spec=env.spec,
+                    #     grad_step_size=fast_learning_rate,
+                    #     hidden_nonlinearity=HIDDEN_NONLINEARITY[nonlinearity_option],
+                    #     hidden_sizes=(net_size, net_size),
+                    #     output_nonlinearity=OUTPUT_NONLINEARITY[nonlinearity_option],
+                    #     std_modifier=pre_std_modifier,
+                    # )
                     if bas == 'zero':
                         baseline = ZeroBaseline(env_spec=env.spec)
                     elif 'linear' in bas:
@@ -59,7 +59,8 @@ for post_std_modifier_train in post_std_modifier_train_list:
                         baseline = GaussianMLPBaseline(env_spec=env.spec)
                     algo = MAMLTRPO(
                         env=env,
-                        policy=policy,
+                        policy=None,
+                        load_policy="/home/rosen/maml_rl/data/local/PU-TR/PU_TRrelu.f0.0_081018_15_42/itr_799.pkl",
                         baseline=baseline,
                         batch_size=fast_batch_size,
                         max_path_length=max_path_length,

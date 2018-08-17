@@ -18,7 +18,7 @@ BIG = 1e6
 
 
 class PusherEnv(utils.EzPickle, Serializable):
-    def __init__(self, xml_file=None, distractors=True, *args, **kwargs):
+    def __init__(self, xml_file=None, distractors=True, debug=True, *args, **kwargs):
         logger.log("initializing environment pusher")
         utils.EzPickle.__init__(self)
         logger.log("using xml_file", xml_file)
@@ -26,12 +26,14 @@ class PusherEnv(utils.EzPickle, Serializable):
             xml_file = 'pusher.xml'
         self.__class__.FILE = xml_file
         self.include_distractors = distractors
-        # self.test_dir = "/home/rosen/FaReLI_data/pushing/test2_paired_push_demos_noimg/"
-        # self.train_dir = "/home/rosen/FaReLI_data/pushing/paired_push_demos_noimg/"
-        # self.xml_dir = "/home/rosen/FaReLI_data/pushing/push_textures/sim_push_xmls/"
-        self.test_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/test2_paired_push_demos_noimg1/"
-        self.train_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/paired_push_demos_noimg/"
-        self.xml_dir = "/root/code/rllab/vendor/mujoco_models/push_textures/sim_push_xmls/"
+        self.debug = debug
+        logger.log("Debugging environment set to %s" %self.debug)
+        self.test_dir = "/home/rosen/FaReLI_data/pushing/test2_paired_push_demos_noimg_DO NOT USE/"
+        self.train_dir = "/home/rosen/FaReLI_data/pushing/paired_push_demos_noimg_noise/"
+        self.xml_dir = "/home/rosen/FaReLI_data/pushing/push_textures/sim_push_xmls/"
+        # self.test_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/test2_paired_push_demos_noimg/"
+        # self.train_dir = "/root/code/rllab/saved_expert_traj/PUSHER-DEMOS/paired_push_demos_noimg/"
+        # self.xml_dir = "/root/code/rllab/vendor/mujoco_models/push_textures/sim_push_xmls/"
         self.goal_num = None
         self.test = False
         self.target_on_left=None
@@ -101,13 +103,15 @@ class PusherEnv(utils.EzPickle, Serializable):
                 xml_file = demo_data["xml"]
                 xml_file = xml_file.replace("/root/code/rllab/vendor/mujoco_models/", self.xml_dir)
                 # print("debug,xml_file", xml_file)
-                if int(xml_file[-5])%2==0:
-                    # print("inverted_order", int(xml_file[-5]))
-                    self.shuffle_order=[0,1] # TODO: flip back, this is set to [0,1] just for debugging purposes
+                if int(xml_file[-5])%2==0 and not self.debug:
+                    print("inverted_order", xml_file, self.goal_num, self.test)
+                    self.shuffle_order=[1,0]
                 else:
-                    # print("normal_order",int(xml_file[-5]))
+                    print("normal_order",xml_file, self.goal_num, self.test)
                     self.shuffle_order=[0,1]
                 self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
+            # else:
+                # print("continuing with xml", self.mujoco.FILE, self.goal_num, self.test)
         elif self.goal_num is None:  #if we already have a goal_num, we don't sample a new one, just reset the model
             self.goal_num, self.test = self.sample_goals(num_goals=1,test=False)[0]
             demo_path = (self.train_dir+str(self.goal_num)+".pkl") if not self.test else (self.test_dir+str(self.goal_num)+".pkl")
@@ -115,11 +119,11 @@ class PusherEnv(utils.EzPickle, Serializable):
             xml_file = demo_data["xml"]
             xml_file = xml_file.replace("/root/code/rllab/vendor/mujoco_models/",self.xml_dir)
 
-            if int(xml_file[-5]) % 2 == 0:
-                # print("inverted_order", int(xml_file[-5]))
-                self.shuffle_order = [0, 1]  # TODO: flip back, this is set to [0,1] just for debugging purposes
+            if int(xml_file[-5]) % 2 == 0 and not self.debug:
+                print("inverted_order, first time initializing env", xml_file)
+                self.shuffle_order = [1, 0]  # TODO: flip back, this is set to [0,1] just for debugging purposes
             else:
-                # print("normal_order", int(xml_file[-5]))
+                print("normal_order, first time initializing env", xml_file)
                 self.shuffle_order = [0, 1]
             self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
             # self.viewer_setup()
@@ -224,9 +228,17 @@ class PusherEnv(utils.EzPickle, Serializable):
 
 
     def _get_obs(self):
+        if self.debug:
+            return np.concatenate([
+                self.mujoco.model.data.qpos.flat[:7],
+                self.mujoco.model.data.qvel.flat[:7],
+                self.mujoco.get_body_com("tips_arm"),
+                self.mujoco.get_body_com("distractor"),
+                self.mujoco.get_body_com("object"),
+                self.mujoco.get_body_com("goal"),
+            ])
         if self.include_distractors:
             if self.shuffle_order[0] == 0:
-                logger.log("debug1")
                 return np.concatenate([
                     self.mujoco.model.data.qpos.flat[:7],
                     self.mujoco.model.data.qvel.flat[:7],
@@ -236,7 +248,6 @@ class PusherEnv(utils.EzPickle, Serializable):
                     self.mujoco.get_body_com("goal"),
                 ])
             else:
-                logger.log("debug2")
                 return np.concatenate([
                     self.mujoco.model.data.qpos.flat[:7],
                     self.mujoco.model.data.qvel.flat[:7],
@@ -246,32 +257,33 @@ class PusherEnv(utils.EzPickle, Serializable):
                     self.mujoco.get_body_com("goal"),
                 ])
         else:
-            if not self.onehot:
-                logger.log("debug3")
-                return np.concatenate([
-                    self.mujoco.model.data.qpos.flat[:7],
-                    self.mujoco.model.data.qvel.flat[:7],
-                    self.mujoco.get_body_com("tips_arm"),
-                    self.mujoco.get_body_com("object"),
-                    self.mujoco.get_body_com("goal"),
-                ])
-            else:
-                logger.log("debug4")
-                extra = np.zeros(self.onehot_dim)
-                if self.onehot_position == -1:
-                    pass  # we keep the vector zeroed out
-                elif self.onehot_position in range(self.onehot_dim):
-                    extra[self.onehot_position] = 1.0
-                else:
-                    assert False, "invalid value of self.onehot_position"
-                return np.concatenate([
-                    self.mujoco.model.data.qpos.flat[:7],
-                    self.mujoco.model.data.qvel.flat[:7],
-                    self.mujoco.get_body_com("tips_arm"),
-                    self.mujoco.get_body_com("object"),
-                    self.mujoco.get_body_com("goal"),
-                    extra
-                ])
+            assert False, "not supported"
+            # if not self.onehot:
+            #     # logger.log("debug3")
+            #     return np.concatenate([
+            #         self.mujoco.model.data.qpos.flat[:7],
+            #         self.mujoco.model.data.qvel.flat[:7],
+            #         self.mujoco.get_body_com("tips_arm"),
+            #         self.mujoco.get_body_com("object"),
+            #         self.mujoco.get_body_com("goal"),
+            #     ])
+            # else:
+            #     # logger.log("debug4")
+            #     extra = np.zeros(self.onehot_dim)
+            #     if self.onehot_position == -1:
+            #         pass  # we keep the vector zeroed out
+            #     elif self.onehot_position in range(self.onehot_dim):
+            #         extra[self.onehot_position] = 1.0
+            #     else:
+            #         assert False, "invalid value of self.onehot_position"
+            #     return np.concatenate([
+            #         self.mujoco.model.data.qpos.flat[:7],
+            #         self.mujoco.model.data.qvel.flat[:7],
+            #         self.mujoco.get_body_com("tips_arm"),
+            #         self.mujoco.get_body_com("object"),
+            #         self.mujoco.get_body_com("goal"),
+            #         extra
+            #     ])
 
     def render(self):
         self.mujoco.render()
