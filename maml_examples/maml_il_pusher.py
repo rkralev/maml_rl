@@ -30,7 +30,7 @@ import time
 beta_adam_steps_list = [(1,1)]
 # beta_curve = [250,250,250,250,250,5,5,5,5,1,1,1,1,] # make sure to check maml_experiment_vars
 # beta_curve = [1000] # make sure to check maml_experiment_vars
-adam_curves = [[50,50,50,50,50,50,50,50,1],
+adam_curves = [[20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,1],
                 # [50,50,50,50,50,50,1],
                 # [50,50,50,50,1],
                 # [20,20,1],
@@ -46,12 +46,12 @@ env_option = ''
 mode = "local"
 extra_input = "onehot_exploration" # "onehot_exploration" "gaussian_exploration"
 # extra_input = None
-extra_input_dim = 5
+extra_input_dim = 25
 # extra_input_dim = None
 goals_suffixes = ["_noise"] #["_200_40_1"] #,"_200_40_2", "_200_40_3","_200_40_4"]
 # goals_suffixes = ["_1000_40"]
 
-fast_batch_size_list = [20] # [20,60]  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
+fast_batch_size_list = [200] # [20,60]  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
 meta_batch_size_list = [40] # 40 @ 10 also works, but much less stable, 20 is fairly stable, 40 is more stable
 max_path_length = 100  # 100
 num_grad_updates = 1

@@ -22,6 +22,7 @@ EXPERT_TRAJ_LOCATION_DICT = {
     ".local_noise":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise/",
     ".local_noise_dummy":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise_dummy/",
     ".local_noise_5":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise/",
+    ".local_noise_25":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise/",
     ".local_noise_2":          "/home/rosen/maml_rl/saved_expert_traj/PUSHER/noise/",
     ".ec2":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",
     ".ec2_5":          "/root/code/rllab/saved_expert_traj/PUSHER/ec2/",

@@ -18,7 +18,7 @@ BIG = 1e6
 
 
 class PusherEnv(utils.EzPickle, Serializable):
-    def __init__(self, xml_file=None, distractors=True, debug=True, *args, **kwargs):
+    def __init__(self, xml_file=None, distractors=True, debug=False, *args, **kwargs):
         logger.log("initializing environment pusher")
         utils.EzPickle.__init__(self)
         logger.log("using xml_file", xml_file)
