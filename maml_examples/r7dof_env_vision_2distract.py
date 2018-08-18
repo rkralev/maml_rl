@@ -36,10 +36,10 @@ class Reacher7Dof2DistractVisionEnv(Serializable):
         if self.mujoco.viewer is None:
             self.mujoco.start_viewer()
         self.mujoco.viewer.cam.trackbodyid = -1
-        self.mujoco.viewer.cam.distance = 1.2
+        self.mujoco.viewer.cam.distance = 1.7
         self.mujoco.viewer.cam.azimuth = -90
         self.mujoco.viewer.cam.elevation = -60
-        self.mujoco.viewer.cam.lookat = (0.0,0.0, 0.0)
+        self.mujoco.viewer.cam.lookat = (0.25,-0.2, 0.0)
     #
     # def get_current_obs(self):
     #     return np.concatenate([
@@ -54,7 +54,7 @@ class Reacher7Dof2DistractVisionEnv(Serializable):
         image = self.mujoco.viewer.get_image()
         pil_image = Image.frombytes('RGB', (image[1], image[2]), image[0])
         pil_image = pil_image.resize((64,64), Image.ANTIALIAS)
-        pil_image = pil_image.crop((0,14,64,46))
+        # pil_image = pil_image.crop((0,14,64,46))
         image = np.flipud(np.array(pil_image))
         image = image.astype(np.float32)
         state = np.concatenate([

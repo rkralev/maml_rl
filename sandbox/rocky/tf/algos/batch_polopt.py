@@ -51,9 +51,7 @@ class BatchPolopt(RLAlgorithm):
             action_noise_test=0.0,
             reset_arg=None,
             save_expert_traj_dir=None,
-            expert_traj_itrs_to_pickle=[],
             save_img_obs=False,
-            goals_to_load=None,
             goals_pool_to_load=None,
             extra_input=None,
             extra_input_dim=0,
@@ -116,24 +114,20 @@ class BatchPolopt(RLAlgorithm):
         self.save_img_obs = save_img_obs
         self.extra_input = extra_input
         self.extra_input_dim = extra_input_dim
-        assert goals_to_load is None, "deprecated"
-        assert len(expert_traj_itrs_to_pickle) == 0, "deprecated"
         if goals_pool_to_load is not None:
             self.goals_pool = joblib.load(goals_pool_to_load)['goals_pool']
-            self.goals_idxs_for_itr_dict = joblib.load(goals_pool_to_load)['idxs_dict']  # not used for anything except passing through to expert_traj along with goals pool
             self.goals_for_ET_dict = {t:[goal] for t, goal in enumerate(self.goals_pool)}
             self.expert_traj_itrs_to_pickle = list(range(len(self.goals_pool)))  # we go through
+            assert save_expert_traj_dir is not None, "please provide a filename to save expert trajectories"
+            assert set(self.expert_traj_itrs_to_pickle).issubset(set(range(self.start_itr,
+                                                                           self.n_itr))), "Will not go through all itrs that need to be pickled, widen the start_itr and n_itr range"
+            Path(self.save_expert_traj_dir).mkdir(parents=True, exist_ok=True)
+            # joblib_dump_safe(dict(goals_pool=self.goals_pool, idxs_dict=self.goals_idxs_for_itr_dict), self.save_expert_traj_dir + "goals_pool.pkl") deprecated to remove redundancy of goals_pool files
         else:
             self.goals_for_ET_dict = {}
             self.expert_traj_itrs_to_pickle = []
             assert save_expert_traj_dir is None, "can't save ETs without goals provided"
-        if len(self.expert_traj_itrs_to_pickle) > 0:
-            assert save_expert_traj_dir is not None, "please provide a filename to save expert trajectories"
-            assert set(self.expert_traj_itrs_to_pickle).issubset(set(range(self.start_itr,self.n_itr))), "Will not go through all itrs that need to be pickled, widen the start_itr and n_itr range"
-            Path(self.save_expert_traj_dir).mkdir(parents=True, exist_ok=False)
-            logger.log("Pickling goals pool...")
-            joblib_dump_safe(dict(goals_pool=self.goals_pool, idxs_dict=self.goals_idxs_for_itr_dict), self.save_expert_traj_dir+"goals_pool.pkl")
-            # We making sure the goals stay with the expert trajs
+
 
     def start_worker(self):
         self.sampler.start_worker()

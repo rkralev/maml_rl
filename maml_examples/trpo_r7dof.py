@@ -24,7 +24,7 @@ import random
 local = True
 
 DOCKER_CODE_DIR = "/root/code/rllab/"
-LOCAL_CODE_DIR = '/home/rosen/maml_rl_data/'
+LOCAL_CODE_DIR = '/home/rosen/maml_rl/'
 if local:
     DOCKER_CODE_DIR = LOCAL_CODE_DIR
     mode = 'local'

@@ -364,7 +364,7 @@ class BatchMAMLPolopt(RLAlgorithm):
                         print("debug, goals_idxs_for_itr", self.goals_idxs_for_itr_dict[itr])
                         for t, taskidx in enumerate(self.goals_idxs_for_itr_dict[itr]):
                             demos_path = self.demos_path+str(taskidx)+self.expert_trajs_suffix+".pkl"
-                            logger.log("loading demos path %s" % demos_path)
+                            # logger.log("loading demos path %s" % demos_path)
                             demos = joblib.load(demos_path)
                             # conversion code from Chelsea's format
                             if type(demos) is dict and 'demoU' in demos.keys():

@@ -8,8 +8,7 @@ from sandbox.rocky.tf.envs.base import TfEnv
 from rllab.misc.instrument import stub, run_experiment_lite
 from rllab.envs.mujoco.half_cheetah_env_rand import HalfCheetahEnvRand
 from rllab.envs.mujoco.half_cheetah_env_oracle import HalfCheetahEnvOracle
-from maml_examples.cheetah_vars import EXPERT_TRAJ_LOCATION_DICT, ENV_OPTIONS, CHEETAH_GOALS_LOCATION, \
-    default_cheetah_env_option
+from maml_examples.cheetah_vars import *
 import pickle
 
 #from rllab.envs.gym_env import GymEnv
@@ -24,7 +23,7 @@ import random
 local = True
 
 DOCKER_CODE_DIR = "/root/code/rllab/"
-LOCAL_CODE_DIR = '/home/rosen/maml_rl_data/'
+LOCAL_CODE_DIR = '/home/rosen/maml_rl/'
 if local:
     DOCKER_CODE_DIR = LOCAL_CODE_DIR
     mode = 'local'
@@ -56,21 +55,21 @@ def run_task(v):
         env=env,
         # policy=policy,
         policy=None,
-        load_policy='/home/rosen/maml_rl/data/local/CH-ET-D5.6/CH_ET_D5.6_2017_10_24_18_32_56_0001/itr_-20.pkl',  # if you want to use this you need to comment out the definition of policy above
+        load_policy='/home/rosen/maml_rl/data/local/CH-TRPO-inc/CH_TRPO_inc_2018_08_17_14_47_42_0001/itr_-20.pkl',
         baseline=baseline,
         batch_size=400*200,  # we divide this by #envs on every iteration
         batch_size_expert_traj=20*200,
         max_path_length=200,
-        start_itr=-1,
-        n_itr=1001,  # actually last iteration number, not total iterations
+        start_itr=-800,
+        n_itr=43,  # actually last iteration number, not total iterations
         discount=0.99,
         step_size=0.01,  # 0.01
         force_batch_sampler=True,
         # optimizer=ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5)),
         action_noise_train=0.0,
         action_noise_test=0.1,
-        save_expert_traj_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+".local.noise0.1.small"],
-        goals_pool_to_load=CHEETAH_GOALS_LOCATION,
+        save_expert_traj_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+"_" + mode + "_incremental"],
+        goals_pool_to_load=CHEETAH_GOALS_LOC_INCREMENTAL,
     )
     algo.train()
 
@@ -84,7 +83,7 @@ for v in variants:
         # Only keep the snapshot parameters for the last iteration
         snapshot_mode="gap",
         snapshot_gap=20,
-        exp_prefix='CH_ET_E1_beta',
+        exp_prefix='CH_TRPO_inc',
         python_command='python3',
         # Specifies the seed for the experiment. If this is not provided, a random seed
         # will be used
