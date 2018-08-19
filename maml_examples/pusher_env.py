@@ -140,12 +140,12 @@ class PusherEnv(utils.EzPickle, Serializable):
         vec_1 = self.mujoco.get_body_com("object") - self.mujoco.get_body_com("tips_arm")
         vec_2 = self.mujoco.get_body_com("object") - self.mujoco.get_body_com("goal")
 
-        reward_near = - np.linalg.norm(vec_1)
-        reward_dist = - np.linalg.norm(vec_2)
-        # reward_near = - np.square(vec_1).sum()
-        # reward_dist = - np.square(vec_2).sum()
+        # reward_near = - np.linalg.norm(vec_1)
+        # reward_dist = - np.linalg.norm(vec_2)
+        reward_near = - np.square(vec_1).sum()
+        reward_dist = - np.square(vec_2).sum()
         reward_ctrl = - np.square(a).sum()
-        reward = 1.0*reward_dist + 0.1 * reward_ctrl + 0.5 * reward_near
+        reward = 1.0*reward_dist + 0.1 * reward_ctrl + 10.0*0.5 * reward_near
 
         self.mujoco.do_simulation(a, n_frames=self.mujoco.frame_skip)
         # extra added to copy rllab forward_dynamics.
@@ -309,7 +309,7 @@ class PusherEnv(utils.EzPickle, Serializable):
 def shuffle_demo(demoX):
     assert np.shape(demoX)[1] == 26, np.shape(demoX)
     slice1 = demoX[:,:17]  # qpos, qvel, tips arm
-    slice2 = demoX[:,17:20] #object
-    slice3 = demoX[:,20:23] #distractor
+    slice2 = demoX[:,17:20] #distractor
+    slice3 = demoX[:,20:23] #object
     slice4 = demoX[:,23:26] #goal
     return np.concatenate((slice1,slice3,slice2, slice4),-1)

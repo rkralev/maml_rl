@@ -47,7 +47,7 @@ class MAMLGaussianConvMLPPolicy(StochasticPolicy, Serializable):
             stop_grad=False,
             extra_input_dim=0,
             # metalearn_baseline=False,
-            input_img_shape = (32,64,3),
+            input_img_shape = (64,64,3),
             conv_hidden_sizes=(),
             conv_filters=[16,16,16,16],
             conv_filter_sizes=[5,5,5,5],

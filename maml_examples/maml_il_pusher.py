@@ -30,7 +30,7 @@ import time
 beta_adam_steps_list = [(1,1)]
 # beta_curve = [250,250,250,250,250,5,5,5,5,1,1,1,1,] # make sure to check maml_experiment_vars
 # beta_curve = [1000] # make sure to check maml_experiment_vars
-adam_curves = [[20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,1],
+adam_curves = [[50,50,50,50,50,50,50,50,20,20,20,20,20,20,20,20,20,20,20,20,1],
                 # [50,50,50,50,50,50,1],
                 # [50,50,50,50,1],
                 # [20,20,1],
@@ -39,7 +39,7 @@ adam_curves = [[20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,1],
                 ]  # m
 #adam_curves = [None]
 
-fast_learning_rates = [0.001] #[0.0001,0.001,0.01,0.1,1.0]
+fast_learning_rates = [0.1] #[0.0001,0.001,0.01,0.1,1.0]
 baselines = ['linear',]  # linear GaussianMLP MAMLGaussianMLP zero
 env_option = ''
 # mode = "ec2"
@@ -56,7 +56,7 @@ meta_batch_size_list = [40] # 40 @ 10 also works, but much less stable, 20 is fa
 max_path_length = 100  # 100
 num_grad_updates = 1
 meta_step_size = 0.01
-pre_std_modifier_list = [1.0]
+pre_std_modifier_list = [5.0]
 post_std_modifier_train_list = [0.00001]
 post_std_modifier_test_list = [0.00001]
 l2loss_std_mult_list = [0.0]
@@ -207,7 +207,7 @@ for goals_suffix in goals_suffixes:
                                                                     max_path_length=max_path_length,
                                                                     meta_batch_size=meta_batch_size,  # number of tasks sampled for beta grad update
                                                                     num_grad_updates=num_grad_updates,  # number of alpha grad updates
-                                                                    n_itr=800, #100
+                                                                    n_itr=1600, #100
                                                                     make_video=False,
                                                                     use_maml=use_maml,
                                                                     use_pooled_goals=True,

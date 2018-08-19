@@ -61,7 +61,7 @@ def run_task(v):
         batch_size=10*30,  # 400 * 200 we divide this by #envs on every iteration
         batch_size_expert_traj=100*30,
         max_path_length=30,
-        start_itr=-1,
+        start_itr=-20,
         n_itr=201,  # actually last iteration number, not total iterations
         discount=0.99,
         step_size=0.00,  # 0.01
@@ -70,6 +70,7 @@ def run_task(v):
         action_noise_train=0.0,
         action_noise_test=0.1,
         make_video=True,
+        save_img_obs=True,
         save_expert_traj_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+".local_test"],
         goals_pool_to_load=R7DOF_GOALS_LOCATION,
     )

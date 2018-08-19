@@ -114,9 +114,12 @@ class Reacher7Dof2DistractVisionEnv(Serializable):
             xml_file = '/home/rosen/maml_rl/vendor/mujoco_models/r7dof_versions/reacher_7dof_2distr_%s%s%s.xml'%tuple(self.shuffle_order)
             self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
             self.viewer_setup()
-        self.goal = np.random.uniform(low=[-0.4, -0.4, -0.3], high=[0.4, 0.0, -0.3]).reshape(3, 1)
-        self.distract1 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
-        self.distract2 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+        while True:
+            self.goal = np.random.uniform(low=[-0.4, -0.4, -0.3], high=[0.4, 0.0, -0.3]).reshape(3, 1)
+            self.distract1 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+            self.distract2 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+            if np.linalg.norm(self.goal-self.distract1)>0.15 and np.linalg.norm(self.goal-self.distract2)>0.15 and np.linalg.norm(self.distract2-self.distract1)>0.15:
+                break
         qpos[-14:-11] = self.distract1
         qpos[-21:-18] = self.distract2
         qpos[-7:-4] = self.goal

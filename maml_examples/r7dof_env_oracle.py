@@ -62,9 +62,11 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
         image = self.mujoco.viewer.get_image()
         pil_image = Image.frombytes('RGB', (image[1], image[2]), image[0])
         pil_image = pil_image.resize((64,64), Image.ANTIALIAS)
-        pil_image = pil_image.crop((0,14,64,46))
+        # pil_image = pil_image.crop((0,14,64,46))
         # pil_image.save("/home/rosen/temp12/pil_image.bmp")
         image = np.flipud(np.array(pil_image))
+        image = image.astype(np.float32)
+
         # print("debug,norm of image", np.linalg.norm(np.array(pil_image)))
         return image, np.concatenate([  #this is the oracle environment so no need for distractors
             self.mujoco.model.data.qpos.flat[:7],
