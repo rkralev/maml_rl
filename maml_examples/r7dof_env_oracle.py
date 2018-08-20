@@ -66,9 +66,14 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
         # pil_image.save("/home/rosen/temp12/pil_image.bmp")
         image = np.flipud(np.array(pil_image))
         image = image.astype(np.float32)
-
+        po_state = np.concatenate([
+            self.mujoco.model.data.qpos.flat[:7],
+            self.mujoco.model.data.qvel.flat[:7],
+            self.mujoco.get_body_com('tips_arm'),
+            ])
+        vision_obs = np.concatenate([image.flatten(),po_state])
         # print("debug,norm of image", np.linalg.norm(np.array(pil_image)))
-        return image, np.concatenate([  #this is the oracle environment so no need for distractors
+        return vision_obs, np.concatenate([  #this is the oracle environment so no need for distractors
             self.mujoco.model.data.qpos.flat[:7],
             self.mujoco.model.data.qvel.flat[:7],
             self.mujoco.get_body_com('tips_arm'),
