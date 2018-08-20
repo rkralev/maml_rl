@@ -114,15 +114,15 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
             if np.equal(self.goal,new_goal_pos).all():
                 self.goal = new_goal_pos
             else:
-                print("debug env changing")
+                print("debug, new xml")
                 self.goal = new_goal_pos
-                # self.shuffle_order = rd.sample([[0, 1, 2], [1, 2, 0], [2, 0, 1]], 1)[0]
-                # xml_file = '/home/rosen/maml_rl/vendor/mujoco_models/r7dof_versions/reacher_7dof_2distr_%s%s%s.xml' % tuple(
-                #     self.shuffle_order)
-                # self.mujoco.stop_viewer()
-                # self.mujoco.terminate()
-                # self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file, action_noise=noise)
-                # self.viewer_setup()
+                self.shuffle_order = rd.sample([[0, 1, 2], [1, 2, 0], [2, 0, 1]], 1)[0]
+                xml_file = '/home/rosen/maml_rl/vendor/mujoco_models/r7dof_versions/reacher_7dof_2distr_%s%s%s.xml' % tuple(
+                    self.shuffle_order)
+                self.mujoco.stop_viewer()
+                self.mujoco.terminate()
+                self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file, action_noise=noise)
+                self.viewer_setup()
         else:  # change goal between resets
             print("debug, resetting goal de novo, shouldn't happen during demo collection")
             if not self.include_distractors:

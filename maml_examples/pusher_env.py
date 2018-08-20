@@ -85,7 +85,6 @@ class PusherEnv(utils.EzPickle, Serializable):
 
     @overrides
     def reset(self, reset_args=None, **kwargs):
-        # if True: #self.reset_xml_on_reset:
         if reset_args is None:
             logger.log("Debug, warning, reset_args for env is None")
         goal = reset_args
