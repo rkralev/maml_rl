@@ -61,8 +61,8 @@ def run_task(v):
         batch_size=10*30,  # 400 * 200 we divide this by #envs on every iteration
         batch_size_expert_traj=100*30,
         max_path_length=30,
-        start_itr=-20,
-        n_itr=201,  # actually last iteration number, not total iterations
+        start_itr=-1,
+        n_itr=5,  # actually last iteration number, not total iterations
         discount=0.99,
         step_size=0.00,  # 0.01
         force_batch_sampler=True,

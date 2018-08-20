@@ -185,9 +185,9 @@ class BatchPolopt(RLAlgorithm):
                     logger.log("Obtaining samples...")
                     paths = []
                     for goalnum, goal in enumerate(goals):
-                        # paths_for_goal = self.obtain_samples(itr=itr, reset_args=[{'goal': goal, 'noise': noise}])  # when using oracle environments with changing noise, use this line!
                         preupdate = True if itr < self.n_itr-1 else False
-                        paths_for_goal = self.obtain_samples(itr=itr, reset_args=[goal],preupdate=preupdate)
+                        # paths_for_goal = self.obtain_samples(itr=itr, reset_args=[{'goal': goal, 'noise': noise}])  # when using oracle environments with changing noise, use this line!
+                        paths_for_goal = self.obtain_samples(itr=itr, reset_args=[{'goal': goal, 'noise': noise}],preupdate=preupdate)
                         print("debug, goal 1", goal)
                         paths.extend(paths_for_goal)  # we need this to be flat because we process all of them together
                         # TODO: there's a bunch of sample processing happening below that we should abstract away
