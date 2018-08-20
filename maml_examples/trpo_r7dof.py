@@ -71,7 +71,7 @@ def run_task(v):
         action_noise_test=0.1,
         make_video=True,
         save_img_obs=True,
-        save_expert_traj_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+".local_test"],
+        save_expert_traj_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+".local_vision_2distr"],
         goals_pool_to_load=R7DOF_GOALS_LOCATION,
     )
     algo.train()
