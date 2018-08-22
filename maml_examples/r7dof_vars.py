@@ -16,7 +16,7 @@ default_r7dof_env_option = ''
 EXPERT_TRAJ_LOCATION_DICT = {
     # ".local":          "/home/rosen/maml_rl/saved_expert_traj/R7DOF/R7-ET-individual_noise0.1/",
     # ".local_vision_2distr":"/home/rosen/maml_rl/saved_expert_traj/R7DOF/R7-ET-vision-rgb/",
-    ".local_vision_2distr":"/home/rosen/maml_rl/saved_expert_traj/R7DOF/R7-ET-vision-rgb_converted/",
+    ".local_vision_2distr":"/home/rosen/maml_rl/saved_expert_traj/R7DOF/R7-ET-vision-rgb_converted2/",
     ".local_vision_2distr_dummy":"/home/rosen/maml_rl/saved_expert_traj/R7DOF/R7-ET-vision-rgb_dummy/",
     ".local_1000_40":  "/home/rosen/maml_rl/saved_expert_traj/R7DOF/R7-ET-individual_noise0.1/",
     ".local_100_40_1":   "/home/rosen/maml_rl/saved_expert_traj/R7DOF/R7-ET-noise0.1-100-40/",  # 100 goals, 40 goals per itr, 40 et per goal
