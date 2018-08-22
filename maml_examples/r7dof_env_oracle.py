@@ -47,10 +47,10 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
         if self.mujoco.viewer is None:
             self.mujoco.start_viewer()
         self.mujoco.viewer.cam.trackbodyid = -1
-        self.mujoco.viewer.cam.distance = 1.2
+        self.mujoco.viewer.cam.distance = 1.7
         self.mujoco.viewer.cam.azimuth = -90
         self.mujoco.viewer.cam.elevation = -60
-        self.mujoco.viewer.cam.lookat = (0.0,0.0, 0.0)
+        self.mujoco.viewer.cam.lookat = (0.25,-0.2, 0.0)
 
     def get_current_obs(self):
         return self._get_obs()
