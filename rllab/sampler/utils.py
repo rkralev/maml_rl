@@ -8,7 +8,7 @@ from rllab.misc import tensor_utils
 
 
 def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1, save_video=True,
-            video_filename='sim_out.mp4', reset_arg=None, use_maml=False, maml_task_index=None, maml_num_tasks=None):
+            video_filename='sim_out.mp4', reset_arg=None, use_maml=False, maml_task_index=None, maml_num_tasks=None,extra_input_dim=0):
     observations = []
     actions = []
     rewards = []
@@ -16,6 +16,8 @@ def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1, save_
     env_infos = []
     images = []
     o = env.reset(reset_args=reset_arg)
+    if extra_input_dim>0 and use_maml:
+        o = np.concatenate((o,[0.0] * extra_input_dim),-1)
     agent.reset()
     path_length = 0
     if animated:
@@ -31,6 +33,8 @@ def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1, save_
         else:
             a, agent_info = agent.get_action_single_env(observation=o, idx=maml_task_index, num_tasks=maml_num_tasks)
         next_o, r, d, env_info = env.step(a)
+        if extra_input_dim > 0 and use_maml:
+            next_o =np.concatenate((next_o,[0.0]*extra_input_dim),-1)
         observations.append(env.observation_space.flatten(o))
         rewards.append(r)
         actions.append(env.action_space.flatten(a))
@@ -53,11 +57,11 @@ def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1, save_
     if animated:
         if save_video and len(images) >= max_path_length:
             import moviepy.editor as mpy
-            clip = mpy.ImageSequenceClip(images, fps=20*speedup)
+            clip = mpy.ImageSequenceClip(images, fps=10*speedup)
             if video_filename[-3:] == 'gif':
-                clip.write_gif(video_filename, fps=20*speedup)
+                clip.write_gif(video_filename, fps=10*speedup)
             else:
-                clip.write_videofile(video_filename, fps=20*speedup)
+                clip.write_videofile(video_filename, fps=10*speedup)
         #return
 
     return dict(

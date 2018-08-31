@@ -55,21 +55,22 @@ def run_task(v):
         env=env,
         # policy=policy,
         policy=None,
-        load_policy='/home/rosen/maml_rl/data/local/CH-TRPO-inc/CH_TRPO_inc_2018_08_17_14_47_42_0001/itr_-20.pkl',
+        load_policy='/home/rosen/maml_rl/data/local/CH-TRPO-inc/CH_TRPO_inc_2018_08_29_17_04_16_0001/itr_-20.pkl',
         baseline=baseline,
         batch_size=400*200,  # we divide this by #envs on every iteration
-        batch_size_expert_traj=20*200,
+        batch_size_expert_traj=2000*200,
         max_path_length=200,
-        start_itr=-800,
+        start_itr=-1,
         n_itr=43,  # actually last iteration number, not total iterations
         discount=0.99,
         step_size=0.01,  # 0.01
         force_batch_sampler=True,
         # optimizer=ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5)),
         action_noise_train=0.0,
-        action_noise_test=0.1,
-        save_expert_traj_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+"_" + mode + "_incremental"],
-        goals_pool_to_load=CHEETAH_GOALS_LOC_INCREMENTAL,
+        action_noise_test=0.0,
+        make_video=True,
+        save_expert_traj_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+"." + mode + "_sparse_1"],
+        goals_pool_to_load=CHEETAH_GOALS_LOC_SPARSE,
     )
     algo.train()
 

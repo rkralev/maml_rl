@@ -168,6 +168,8 @@ class BatchPolopt(RLAlgorithm):
                     self.policy.std_modifier = 0.0001
                     self.policy.recompute_dist_for_adjusted_std()
                 if itr in self.goals_for_ET_dict.keys():
+                    # self.policy.std_modifier = 0.0001
+                    # self.policy.recompute_dist_for_adjusted_std()
                     goals = self.goals_for_ET_dict[itr]
                     noise = self.action_noise_test
                     self.batch_size = self.batch_size_expert_traj
@@ -256,7 +258,7 @@ class BatchPolopt(RLAlgorithm):
                                        'path' + str(0) + '_' + str(itr) + '.png'))
 
                     # if self.make_video and itr % 2 == 0 or itr in [0,1,2,3,4,5,6,7,8]: # and itr in self.goals_for_ET_dict.keys() == 0:
-                    if self.make_video and (itr == 0 or itr == self.n_itr-1): # and itr in self.goals_for_ET_dict.keys() == 0:
+                    if self.make_video and (itr >= 0 and itr <= self.n_itr-1): # and itr in self.goals_for_ET_dict.keys() == 0:
                         logger.log("Saving videos...")
                         self.env.reset(reset_args=goals[0])
                         video_filename = osp.join(logger.get_snapshot_dir(), 'post_path_%s_0_%s.gif' % (itr,time.strftime("%H%M%S")))

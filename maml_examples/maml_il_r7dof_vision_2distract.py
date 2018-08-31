@@ -32,8 +32,6 @@ import tensorflow as tf
 import time
 
 beta_adam_steps_list = [(1,1)]
-# beta_curve = [250,250,250,250,250,5,5,5,5,1,1,1,1,] # make sure to check maml_experiment_vars
-# beta_curve = [1000] # make sure to check maml_experiment_vars
 adam_curve = [250,249,248,247,245,50,50,10] # make sure to check maml_experiment_vars
 # adam_curve = None
 

@@ -33,7 +33,7 @@ class MAMLIL(BatchMAMLPolopt):
         if optimizer is None:
             if optimizer_args is None:
                 optimizer_args = dict(min_penalty=1e-8)
-            optimizer = QuadDistExpertOptimizer("main_optimizer", adam_steps=adam_steps)  #  **optimizer_args)
+            optimizer = QuadDistExpertOptimizer("main_optimizer", adam_steps=adam_steps, use_momentum_optimizer=False)  #  **optimizer_args)
         self.optimizer = optimizer
         self.step_size = step_size
         self.adam_curve = adam_curve if adam_curve is not None else [adam_steps]
@@ -435,6 +435,7 @@ class MAMLIL(BatchMAMLPolopt):
 
         else:
             logger.log("Not Optimizing")
+            logger.record_tabular("ILLoss",float('nan'))
             return None
         # logger.log("Computing loss after")
       #  loss_after = self.optimizer.loss(input_vals_list)

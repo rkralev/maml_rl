@@ -82,7 +82,7 @@ class QuadDistExpertOptimizer(Serializable):
         self._dummy_loss = dummy_loss
 
         if self._use_momentum_optimizer:
-            self._adam=tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.5, name=self._name)
+            self._adam=tf.train.MomentumOptimizer(learning_rate=0.1, momentum=0.999, name=self._name)
             assert False, "not supported at the moment"
         else:
             self._adam = tf.train.AdamOptimizer(name=self._name)
@@ -175,8 +175,7 @@ class QuadDistExpertOptimizer(Serializable):
         #     if 'obs' in key.name:
                 # print("debug567", key, np.shape(feed_dict[key]))
         adam_loss = sess.run(self._loss, feed_dict=feed_dict)
-        logger.log("adam_loss %s" % adam_loss)
-        logger.record_tabular("AdamLoss", adam_loss)
+        logger.log("imitation_loss %s" % adam_loss)
         min_loss = adam_loss
         for i in range(steps):
             # BREAKER: limit the amount of adam steps you take by measuring the reduction in loss. Quite costly.
@@ -193,6 +192,9 @@ class QuadDistExpertOptimizer(Serializable):
             # print("debug02", sess.run(self._correction_term, feed_dict=feed_dict)[0][0][0:4])
                 # print("debug03", sess.run(self.new_gradients, feed_dict=feed_dict))
             sess.run(self._train_step, feed_dict=feed_dict)
+        adam_loss = sess.run(self._loss, feed_dict=feed_dict)
+        logger.log("imitation_loss %s" % adam_loss)
+        logger.record_tabular("ILLoss", adam_loss)
         return adam_loss
 
 

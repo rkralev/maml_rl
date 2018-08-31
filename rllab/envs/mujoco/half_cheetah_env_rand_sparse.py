@@ -22,7 +22,7 @@ class HalfCheetahEnvRandSparse(MujocoEnv, Serializable):
         Serializable.__init__(self, *args, **kwargs)
 
     def sample_goals(self, num_goals):
-        # if goal is positive
+        # if goal is positive, run forward
         return self.vel_mult * np.random.choice([-1.0, 1.0], (num_goals,))
 
     @overrides
@@ -70,8 +70,9 @@ class HalfCheetahEnvRandSparse(MujocoEnv, Serializable):
         action = np.clip(action, *self.action_bounds)
         ctrl_cost = 1e-1 * 1e-1 * 0.5 * np.sum(np.square(action))
         # run_cost = 1.*np.abs(self.get_body_comvel("torso")[0] - self._goal_vel)
-        run_reward = int(self.get_body_comvel("torso")[0]/self._goal_vel >= 1.0) # if we run at least as fast as the goal velocity, in the same direction
-        reward = run_reward - ctrl_cost
+        run_reward = int(self.get_body_comvel("torso")[0]/self._goal_vel >= 0.25) # if we run at least as fast as the goal velocity, in the same direction
+        reward = run_reward
+        # reward = run_reward - ctrl_cost
         done = False
         return Step(next_obs, reward, done)
 

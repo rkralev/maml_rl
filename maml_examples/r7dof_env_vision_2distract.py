@@ -13,7 +13,7 @@ BIG = 1e6
 
 class Reacher7Dof2DistractVisionEnv(Serializable):
     def __init__(self, xml_file=None, goal_num=None, distance_metric_order=None, distractors=True, *args, **kwargs):
-        self.goal_num = np.random.choice([0,1,2])
+        self.goal_num = np.random.choice([0,0,0])
         self.shuffle_order = [[0,1,2],[1,2,0],[2,0,1]][self.goal_num]
 
         self.include_distractors=distractors
@@ -57,6 +57,9 @@ class Reacher7Dof2DistractVisionEnv(Serializable):
         # pil_image = pil_image.crop((0,14,64,46))
         image = np.flipud(np.array(pil_image))
         image = image.astype(np.float32)
+        # print("debug, image",image)
+        # print("debug, image.flatten",image.flatten())
+        # assert False
         state = np.concatenate([
             self.mujoco.model.data.qpos.flat[:7],
             self.mujoco.model.data.qvel.flat[:7],
@@ -80,7 +83,7 @@ class Reacher7Dof2DistractVisionEnv(Serializable):
     def sample_goals(self, num_goals):
         goals_list = []
         for _ in range(num_goals):
-            newgoal = np.random.choice([0,1,2])
+            newgoal = np.random.choice([0,0,0])
             goals_list.append(newgoal)
         return np.array(goals_list)
 
@@ -102,16 +105,18 @@ class Reacher7Dof2DistractVisionEnv(Serializable):
                 # self.mujoco.terminate()
                 xml_file = '/home/rosen/maml_rl/vendor/mujoco_models/r7dof_versions/reacher_7dof_2distr_%s%s%s.xml' % tuple(
                     self.shuffle_order)
+                print("xml file", xml_file)
                 self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
                 self.viewer_setup()
         elif self.goal_num is None: # do not change color of goal or XML file between resets.
-            self.goal_num = np.random.choice([0,1,2])
+            self.goal_num = np.random.choice([0,0,0])
             self.shuffle_order = [[0,1,2],[1,2,0],[2,0,1]][self.goal_num]
             if self.mujoco.viewer is not None:
                 self.mujoco.stop_viewer()
                 self.mujoco.release()
                 self.mujoco.terminate()
             xml_file = '/home/rosen/maml_rl/vendor/mujoco_models/r7dof_versions/reacher_7dof_2distr_%s%s%s.xml'%tuple(self.shuffle_order)
+            print("xml file", xml_file)
             self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
             self.viewer_setup()
         while True:

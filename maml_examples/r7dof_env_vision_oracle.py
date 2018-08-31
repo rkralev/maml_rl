@@ -10,7 +10,7 @@ from rllab import spaces
 from copy import deepcopy
 BIG = 1e6
 
-class Reacher7DofMultitaskEnvOracle(Serializable):
+class Reacher7DofVisionEnvOracle(Serializable):
     def __init__(self, xml_file=None, distance_metric_order=None, distractors=True, *args, **kwargs):
         self.goal = None
         if 'noise' in kwargs:
@@ -19,7 +19,8 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
             noise = 0.0
         self.include_distractors=distractors
         if self.include_distractors:
-            self.shuffle_order = [[0,1,2],[1,2,0],[2,0,1]][0]
+            self.goal_num = np.random.choice([0,0,0])
+            self.shuffle_order = [[0,1,2],[1,2,0],[2,0,1]][self.goal_num]
             # self.shuffle_order = rd.sample([[0,1,2],[1,2,0],[2,0,1]],1)[0]
 
         if xml_file is None:
@@ -30,6 +31,7 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
 
         print("xml file", xml_file)
         self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file,action_noise=noise)
+        # self.viewer_setup()
         self.action_space = self.mujoco.action_space
         self.get_viewer = self.mujoco.get_viewer
         self.log_diagnostics = self.mujoco.log_diagnostics
@@ -57,7 +59,7 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
 
     def get_current_image_obs(self):
         # image = self.mujoco.get_viewer().get_image()
-        self.viewer_setup()
+        # self.viewer_setup()
         self.mujoco.render()
         image = self.mujoco.viewer.get_image()
         pil_image = Image.frombytes('RGB', (image[1], image[2]), image[0])
@@ -84,28 +86,36 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
         self.mujoco.frame_skip = 5
         distance = np.linalg.norm( self.mujoco.get_body_com("tips_arm") - self.mujoco.get_body_com("goal"))
         reward = - distance
-        self.mujoco.do_simulation(action, n_frames=self.mujoco.frame_skip)
+        self.mujoco.forward_dynamics(action)
+        # self.mujoco.do_simulation(action, n_frames=self.mujoco.frame_skip)
         # self.do_simulation(action, self.frame_skip)
-        # next_obs = self.get_current_obs()
-        next_img, next_obs = self.get_current_image_obs()
+        next_obs = self.get_current_obs()
+        # next_img, next_obs = self.get_current_image_obs()
         done = False
-        return Step(observation=next_obs, reward=reward, done=done, img=next_img) #, dict(distance=distance)
+        return Step(observation=next_obs, reward=reward, done=done) #, img=next_img) #, dict(distance=distance)
+
+    # def sample_goals(self, num_goals):
+    #     goals_list = []
+    #     for _ in range(num_goals):
+    #         newgoal = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+    #         goals_list.append(newgoal)
+    #     return np.array(goals_list)
 
     def sample_goals(self, num_goals):
         goals_list = []
         for _ in range(num_goals):
-            newgoal = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+            newgoal = np.random.choice([0,0,0])
             goals_list.append(newgoal)
         return np.array(goals_list)
-
 
     @overrides
     def reset(self, reset_args=None, **kwargs):
         qpos = np.copy(self.mujoco.init_qpos)
-        qvel = np.copy(self.mujoco.init_qvel) + self.mujoco.np_random.uniform(
+        qvel = np.copy(self.mujoco.init_qvel) + 0.0*self.mujoco.np_random.uniform(
             low=-0.005, high=0.005, size=self.mujoco.model.nv
         )
 
+        # if both goal and action noise are in in reset_args
         if type(reset_args) is dict:
             new_goal = reset_args['goal']
             noise = reset_args['noise']
@@ -115,11 +125,13 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
         else:
             new_goal = reset_args
 
+        # resetting logic based on a new goal: load new xml, reset positions
         if new_goal is not None:
-            if np.equal(self.goal,new_goal).all():
-                self.goal = new_goal
+            if self.goal_num == new_goal:
+                pass
             else:
-                self.goal = new_goal
+                print("changing goal_num to", new_goal)
+                self.goal_num = new_goal
                 # self.shuffle_order = rd.sample([[0, 1, 2], [1, 2, 0], [2, 0, 1]], 1)[0]
                 # xml_file = '/home/rosen/maml_rl/vendor/mujoco_models/r7dof_versions/reacher_7dof_2distr_%s%s%s.xml' % tuple(
                 #     self.shuffle_order)
@@ -127,19 +139,22 @@ class Reacher7DofMultitaskEnvOracle(Serializable):
                 # self.mujoco.terminate()
                 # self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file, action_noise=noise)
                 # self.viewer_setup()
-        else:  # change goal between resets
-            print("debug, resetting goal de novo, shouldn't happen during demo collection")
-            if not self.include_distractors:
-                self.goal = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
-            else:
-                self.goal = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+        else:  # if no new goal given, reset positions, keep xml
+            pass
+            # print("debug, resetting goal de novo, shouldn't happen during demo collection")
+            # if not self.include_distractors:
+            #     self.goal = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+            # else:
+            #     self.goal = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
         # reset distractors even if goal is same
-        self.goal = np.random.uniform(low=[-0.4, -0.4, -0.3], high=[0.4, 0.0, -0.3]).reshape(3, 1)
-        self.distract1 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
-        self.distract2 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+        while True:
+            self.goal = np.random.uniform(low=[-0.4, -0.4, -0.3], high=[0.4, 0.0, -0.3]).reshape(3, 1)
+            self.distract1 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+            self.distract2 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
+            if np.linalg.norm(self.goal-self.distract1)>0.15 and np.linalg.norm(self.goal-self.distract2)>0.15 and np.linalg.norm(self.distract2-self.distract1)>0.15:
+                break
         qpos[-14:-11] = self.distract1
         qpos[-21:-18] = self.distract2
-
         qpos[-7:-4] = self.goal
         qvel[-7:] = 0
         setattr(self.mujoco.model.data, 'qpos', qpos)

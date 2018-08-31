@@ -8,6 +8,7 @@ from sandbox.rocky.tf.envs.base import TfEnv
 from rllab.misc.instrument import stub, run_experiment_lite
 from rllab.envs.mujoco.half_cheetah_env_rand import HalfCheetahEnvRand
 from maml_examples.r7dof_env_oracle import Reacher7DofMultitaskEnvOracle
+from maml_examples.r7dof_env_vision_oracle import Reacher7DofVisionEnvOracle
 from maml_examples.r7dof_vars import EXPERT_TRAJ_LOCATION_DICT, ENV_OPTIONS, R7DOF_GOALS_LOCATION, \
     default_r7dof_env_option
 import pickle
@@ -44,7 +45,7 @@ variants = VG().variants()
 env_option = default_r7dof_env_option
 
 def run_task(v):
-    env = TfEnv(normalize(Reacher7DofMultitaskEnvOracle(distractors=True)))
+    env = TfEnv(normalize(Reacher7DofVisionEnvOracle(distractors=True)))
     # policy = GaussianMLPPolicy(
     #    name="policy",
     #    env_spec=env.spec,
@@ -56,15 +57,15 @@ def run_task(v):
         env=env,
         # policy=policy,
         policy=None,
-        load_policy='/home/rosen/maml_rl/data/local/R7DOF-ET-E3.3/R7DOF_ET_E3.3_2018_01_01_14_27_38_0001/itr_-140.pkl',  # if you want to use this you need to comment out the definition of policy above
+        load_policy='/home/rosen/maml_rl/data/local/R7DOF-ET-E3.3/R7DOF_ET_E3.3_2018_08_27_16_39_26_0001/itr_-20.pkl',  # if you want to use this you need to comment out the definition of policy above
         baseline=baseline,
-        batch_size=10*30,  # 400 * 200 we divide this by #envs on every iteration
-        batch_size_expert_traj=2000*30,
+        batch_size=100*30,  # 400 * 200 we divide this by #envs on every iteration
+        batch_size_expert_traj=100*30,
         max_path_length=30,
-        start_itr=-1,
+        start_itr=-800,
         n_itr=5,  # actually last iteration number, not total iterations
         discount=0.99,
-        step_size=0.00,  # 0.01
+        step_size=0.01,  # 0.01
         force_batch_sampler=True,
         # optimizer=ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5)),
         action_noise_train=0.0,

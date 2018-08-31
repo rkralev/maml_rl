@@ -325,8 +325,9 @@ class BatchMAMLPolopt(RLAlgorithm):
     def train(self):
         # TODO - make this a util
         flatten_list = lambda l: [item for sublist in l for item in sublist]
-
-        with tf.Session() as sess:
+        config = tf.ConfigProto()
+        config.gpu_options.per_process_gpu_memory_fraction = 0.1
+        with tf.Session(config=config) as sess:
             tf.set_random_seed(1)
             # Code for loading a previous policy. Somewhat hacky because needs to be in sess.
             if self.load_policy is not None:
@@ -386,17 +387,25 @@ class BatchMAMLPolopt(RLAlgorithm):
 
                                     converted_demos.append({'observations': demoX, 'actions': demoU})
                                 # print("debug, using xml for demos", demos['xml'])
-
-
                                 expert_traj_for_metaitr[t] = converted_demos
                             else:
-                                expert_traj_for_metaitr[t] = demos
+                                if self.extra_input is not None:
+                                    demos_plus_ei=[]
+                                    for demo in demos:
+                                        extra=np.zeros((np.shape(demo['observations'])[0], self.extra_input_dim))
+                                        obs_plus_ei = np.concatenate((demo['observations'],extra),-1)
+                                        demo['observations'] = obs_plus_ei
+                                        demos_plus_ei.append(demo)
+                                    expert_traj_for_metaitr[t] = demos_plus_ei
+                                else:
+                                    expert_traj_for_metaitr[t] = demos
                         # expert_traj_for_metaitr = {t : joblib.load(self.demos_path+str(taskidx)+self.expert_trajs_suffix+".pkl") for t, taskidx in enumerate(self.goals_idxs_for_itr_dict[itr])}
                         expert_traj_for_metaitr = {t: expert_traj_for_metaitr[t] for t in range(self.meta_batch_size)}
 
                         if self.limit_demos_num is not None:
-                            print(self.limit_demos_num)
-                            expert_traj_for_metaitr = {t:expert_traj_for_metaitr[t][:self.limit_demos_num] for t in expert_traj_for_metaitr.keys()}
+                            print("limit_demos_num", self.limit_demos_num)
+                            expert_traj_for_metaitr = {t:rd.sample(expert_traj_for_metaitr[t],self.limit_demos_num) for t in expert_traj_for_metaitr.keys()}
+                            # expert_traj_for_metaitr = {t:expert_traj_for_metaitr[t][:self.limit_demos_num] for t in expert_traj_for_metaitr.keys()}
                         for t in expert_traj_for_metaitr.keys():
 
                             for path in expert_traj_for_metaitr[t]:
@@ -591,7 +600,7 @@ class BatchMAMLPolopt(RLAlgorithm):
                                         use_maml=True, maml_task_index=ind,
                                         maml_num_tasks=self.meta_batch_size)
                     elif self.make_video and itr in VIDEO_ITRS:
-                        for ind in range(min(5, self.meta_batch_size)):
+                        for ind in range(min(2, self.meta_batch_size)):
                             logger.log("Saving videos...")
                             self.env.reset(reset_args=self.goals_to_use_dict[itr][ind])
                             video_filename = osp.join(logger.get_snapshot_dir(), 'post_path_%s_%s.gif' % (ind, itr))
@@ -599,9 +608,9 @@ class BatchMAMLPolopt(RLAlgorithm):
                                     animated=True, speedup=2, save_video=True, video_filename=video_filename,
                                     reset_arg=self.goals_to_use_dict[itr][ind],
                                     use_maml=True, maml_task_index=ind,
-                                    maml_num_tasks=self.meta_batch_size)
+                                    maml_num_tasks=self.meta_batch_size, extra_input_dim=self.extra_input_dim)
                         self.policy.switch_to_init_dist()
-                        for ind in range(min(5, self.meta_batch_size)):
+                        for ind in range(min(2, self.meta_batch_size)):
                             logger.log("Saving videos...")
                             self.env.reset(reset_args=self.goals_to_use_dict[itr][ind])
                             video_filename = osp.join(logger.get_snapshot_dir(), 'pre_path_%s_%s.gif' % (ind, itr))
@@ -609,6 +618,7 @@ class BatchMAMLPolopt(RLAlgorithm):
                                     animated=True, speedup=2, save_video=True, video_filename=video_filename,
                                     reset_arg=self.goals_to_use_dict[itr][ind],
                                     use_maml=False,
+                                    extra_input_dim = self.extra_input_dim,
                                     # maml_task_index=ind,
                                     # maml_num_tasks=self.meta_batch_size
                                     )

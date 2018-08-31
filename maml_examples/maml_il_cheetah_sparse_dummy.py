@@ -19,19 +19,17 @@ import tensorflow as tf
 import time
 
 beta_adam_steps_list = [(1,1)]
-adam_curve = [1] # make sure to check maml_experiment_vars
+adam_curve = [100] # make sure to check maml_experiment_vars
 
-fast_learning_rates = [1.0]
-baselines = ['linear']
+fast_learning_rates = [0.0]
+baselines = ['zero']
 env_option = ''
 mode = "local"
-# extra_input="onehot_exploration"
 extra_input=None
-# extra_input_dim=5
 extra_input_dim=None
-goals_suffixes = ["_sparse_1"]
+goals_suffixes = ["_sparse_dummy"]
 
-fast_batch_size = 100  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
+fast_batch_size = 1  # 20 # 10 works for [0.1, 0.2], 20 doesn't improve much for [0,0.2]  #inner grad update size
 meta_batch_size = 6  # 40 @ 10 also works, but much less stable, 20 is fairly stable, 40 is more stable
 max_path_length = 200  # 100
 num_grad_updates = 1
@@ -39,8 +37,7 @@ meta_step_size = 0.01
 pre_std_modifier_list = [1.0]
 post_std_modifier_train_list = [0.00001]
 post_std_modifier_test_list = [0.00001]
-l2loss_std_mult_list = [0.0]
-limit_demos_num = 100
+l2loss_std_mult_list = [1.0]
 
 use_maml = True
 for goals_suffix in goals_suffixes:
@@ -63,9 +60,6 @@ for goals_suffix in goals_suffixes:
                                     hidden_nonlinearity=tf.nn.relu,
                                     hidden_sizes=(100, 100),
                                     std_modifier=pre_std_modifier,
-                                    # init_std=10.,
-                                    extra_input_dim=(0 if extra_input is None else extra_input_dim),
-
                                 )
                                 if bas == 'zero':
                                     baseline = ZeroBaseline(env_spec=env.spec)
@@ -81,34 +75,29 @@ for goals_suffix in goals_suffixes:
                                     max_path_length=max_path_length,
                                     meta_batch_size=meta_batch_size,  # number of tasks sampled for beta grad update
                                     num_grad_updates=num_grad_updates,  # number of alpha grad updates
-                                    n_itr=2000, #100
+                                    n_itr=800, #100
                                     use_maml=use_maml,
                                     use_pooled_goals=True,
                                     step_size=meta_step_size,
                                     plot=False,
                                     beta_steps=beta_steps,
-                                    adam_steps=adam_steps,
                                     adam_curve=adam_curve,
+                                    adam_steps=adam_steps,
                                     pre_std_modifier=pre_std_modifier,
                                     l2loss_std_mult=l2loss_std_mult,
                                     post_std_modifier_train=post_std_modifier_train,
                                     post_std_modifier_test=post_std_modifier_test,
                                     expert_trajs_dir=EXPERT_TRAJ_LOCATION_DICT[env_option+"."+mode+goals_suffix],
                                     test_on_training_goals=True,
-                                    make_video=True,
-                                    extra_input=extra_input,
-                                    extra_input_dim=(0 if extra_input is None else extra_input_dim),
-                                    limit_demos_num=limit_demos_num,
-
                                 )
                                 run_experiment_lite(
                                     algo.train(),
                                     n_parallel=1,
-                                    snapshot_mode="all",
+                                    snapshot_mode="last",
                                     python_command='python3',
                                     seed=seed,
-                                    exp_prefix='CH_IL_sparse',
-                                    exp_name='CH_IL_sparse'
+                                    exp_prefix='CH_IL_sparse_dummy',
+                                    exp_name='CH_IL_sparse_dummy'
                                              # + str(int(use_maml))
                                              #     +'_fbs'+str(fast_batch_size)
                                              #     +'_mbs'+str(meta_batch_size)
@@ -127,6 +116,5 @@ for goals_suffix in goals_suffixes:
                                     sync_s3_pkl=True,
                                     mode=mode,
                                     terminate_machine=False,
-
                                 )
 
