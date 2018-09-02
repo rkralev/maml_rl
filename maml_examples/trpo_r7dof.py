@@ -60,9 +60,9 @@ def run_task(v):
         load_policy='/home/rosen/maml_rl/data/local/R7DOF-ET-E3.3/R7DOF_ET_E3.3_2018_08_27_16_39_26_0001/itr_-20.pkl',  # if you want to use this you need to comment out the definition of policy above
         baseline=baseline,
         batch_size=100*30,  # 400 * 200 we divide this by #envs on every iteration
-        batch_size_expert_traj=100*30,
+        batch_size_expert_traj=2000*30,
         max_path_length=30,
-        start_itr=-800,
+        start_itr=-1,
         n_itr=5,  # actually last iteration number, not total iterations
         discount=0.99,
         step_size=0.01,  # 0.01

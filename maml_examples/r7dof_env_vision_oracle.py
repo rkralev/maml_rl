@@ -19,7 +19,7 @@ class Reacher7DofVisionEnvOracle(Serializable):
             noise = 0.0
         self.include_distractors=distractors
         if self.include_distractors:
-            self.goal_num = np.random.choice([0,0,0])
+            self.goal_num = np.random.choice([0,1,2])
             self.shuffle_order = [[0,1,2],[1,2,0],[2,0,1]][self.goal_num]
             # self.shuffle_order = rd.sample([[0,1,2],[1,2,0],[2,0,1]],1)[0]
 
@@ -31,7 +31,7 @@ class Reacher7DofVisionEnvOracle(Serializable):
 
         print("xml file", xml_file)
         self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file,action_noise=noise)
-        # self.viewer_setup()
+        self.viewer_setup()
         self.action_space = self.mujoco.action_space
         self.get_viewer = self.mujoco.get_viewer
         self.log_diagnostics = self.mujoco.log_diagnostics
@@ -89,10 +89,10 @@ class Reacher7DofVisionEnvOracle(Serializable):
         self.mujoco.forward_dynamics(action)
         # self.mujoco.do_simulation(action, n_frames=self.mujoco.frame_skip)
         # self.do_simulation(action, self.frame_skip)
-        next_obs = self.get_current_obs()
-        # next_img, next_obs = self.get_current_image_obs()
+        # next_obs = self.get_current_obs()
+        next_img, next_obs = self.get_current_image_obs()
         done = False
-        return Step(observation=next_obs, reward=reward, done=done) #, img=next_img) #, dict(distance=distance)
+        return Step(observation=next_obs, reward=reward, done=done, img=next_img) #, dict(distance=distance)
 
     # def sample_goals(self, num_goals):
     #     goals_list = []
@@ -104,7 +104,7 @@ class Reacher7DofVisionEnvOracle(Serializable):
     def sample_goals(self, num_goals):
         goals_list = []
         for _ in range(num_goals):
-            newgoal = np.random.choice([0,0,0])
+            newgoal = np.random.choice([0,1,2])
             goals_list.append(newgoal)
         return np.array(goals_list)
 
@@ -151,7 +151,7 @@ class Reacher7DofVisionEnvOracle(Serializable):
             self.goal = np.random.uniform(low=[-0.4, -0.4, -0.3], high=[0.4, 0.0, -0.3]).reshape(3, 1)
             self.distract1 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
             self.distract2 = np.random.uniform(low=[-0.4,-0.4,-0.3],high=[0.4,0.0,-0.3]).reshape(3,1)
-            if np.linalg.norm(self.goal-self.distract1)>0.15 and np.linalg.norm(self.goal-self.distract2)>0.15 and np.linalg.norm(self.distract2-self.distract1)>0.15:
+            if np.linalg.norm(self.goal-self.distract1)>0.35 and np.linalg.norm(self.goal-self.distract2)>0.35 and np.linalg.norm(self.distract2-self.distract1)>0.35:
                 break
         qpos[-14:-11] = self.distract1
         qpos[-21:-18] = self.distract2
