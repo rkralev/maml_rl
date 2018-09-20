@@ -13,7 +13,7 @@ BIG = 1e6
 
 class Reacher7Dof2DistractVisionEnv(Serializable):
     def __init__(self, xml_file=None, goal_num=None, distance_metric_order=None, distractors=True, *args, **kwargs):
-        self.goal_num = np.random.choice([0,0,0])
+        self.goal_num = np.random.choice([0,1,2])
         self.shuffle_order = [[0,1,2],[1,2,0],[2,0,1]][self.goal_num]
 
         self.include_distractors=distractors
@@ -83,7 +83,7 @@ class Reacher7Dof2DistractVisionEnv(Serializable):
     def sample_goals(self, num_goals):
         goals_list = []
         for _ in range(num_goals):
-            newgoal = np.random.choice([0,0,0])
+            newgoal = np.random.choice([0,1,2])
             goals_list.append(newgoal)
         return np.array(goals_list)
 
@@ -109,7 +109,7 @@ class Reacher7Dof2DistractVisionEnv(Serializable):
                 self.mujoco = mujoco_env.MujocoEnv(file_path=xml_file)
                 self.viewer_setup()
         elif self.goal_num is None: # do not change color of goal or XML file between resets.
-            self.goal_num = np.random.choice([0,0,0])
+            self.goal_num = np.random.choice([0,1,2])
             self.shuffle_order = [[0,1,2],[1,2,0],[2,0,1]][self.goal_num]
             if self.mujoco.viewer is not None:
                 self.mujoco.stop_viewer()
