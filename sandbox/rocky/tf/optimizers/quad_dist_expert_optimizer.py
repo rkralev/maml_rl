@@ -82,10 +82,10 @@ class QuadDistExpertOptimizer(Serializable):
         self._dummy_loss = dummy_loss
 
         if self._use_momentum_optimizer:
-            self._adam=tf.train.MomentumOptimizer(learning_rate=0.1, momentum=0.999, name=self._name)
+            self._adam=tf.train.MomentumOptimizer(learning_rate=0.0000001, momentum=0.997, name=self._name)
             assert False, "not supported at the moment"
         else:
-            self._adam = tf.train.AdamOptimizer(name=self._name)
+            self._adam = tf.train.AdamOptimizer(name=self._name) #learning_rate=0.001
         self._optimizer_vars_initializers = [var.initializer for var in tf.global_variables() if self._name in var.name]
 
         # self._adam = tf.train.MomentumOptimizer(learning_rate=0.001, momentum=0.5)

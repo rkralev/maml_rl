@@ -151,6 +151,8 @@ class BatchMAMLPolopt(RLAlgorithm):
         self.extra_input = extra_input
         self.extra_input_dim = extra_input_dim
         self.debug_pusher=debug_pusher
+        self.cached_demos=None
+        self.cached_demos_path=None
         # Next, we will set up the goals and potentially trajectories that we plan to use.
         # If we use trajectorie
         print("debug1", tf.__version__)
@@ -327,8 +329,8 @@ class BatchMAMLPolopt(RLAlgorithm):
         flatten_list = lambda l: [item for sublist in l for item in sublist]
         config = tf.ConfigProto()
         config.gpu_options.per_process_gpu_memory_fraction = 0.9
-        # with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
         with tf.Session(config=config) as sess:
+        # with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
             tf.set_random_seed(1)
             # Code for loading a previous policy. Somewhat hacky because needs to be in sess.
             if self.load_policy is not None:
@@ -365,9 +367,15 @@ class BatchMAMLPolopt(RLAlgorithm):
                         expert_traj_for_metaitr = {}
                         print("debug, goals_idxs_for_itr", self.goals_idxs_for_itr_dict[itr])
                         for t, taskidx in enumerate(self.goals_idxs_for_itr_dict[itr]):
+                            print(t,taskidx)
                             demos_path = self.demos_path+str(taskidx)+self.expert_trajs_suffix+".pkl"
                             # logger.log("loading demos path %s" % demos_path)
-                            demos = joblib.load(demos_path)
+                            if demos_path == self.cached_demos_path:
+                                demos = self.cached_demos
+                            else:
+                                demos = joblib.load(demos_path)
+                                self.cached_demos=demos
+                                self.cached_demos_path=demos_path
                             # conversion code from Chelsea's format
                             if type(demos) is dict and 'demoU' in demos.keys():
                                 converted_demos = []
@@ -389,6 +397,7 @@ class BatchMAMLPolopt(RLAlgorithm):
                                     converted_demos.append({'observations': demoX, 'actions': demoU})
                                 # print("debug, using xml for demos", demos['xml'])
                                 expert_traj_for_metaitr[t] = converted_demos
+                                print("y")
                             else:
                                 if self.extra_input is not None:
                                     demos_plus_ei=[]
@@ -398,8 +407,12 @@ class BatchMAMLPolopt(RLAlgorithm):
                                         demo['observations'] = obs_plus_ei
                                         demos_plus_ei.append(demo)
                                     expert_traj_for_metaitr[t] = demos_plus_ei
+                                    print("y1")
+
                                 else:
                                     expert_traj_for_metaitr[t] = demos
+                                    print("y2", t, expert_traj_for_metaitr.keys())
+
                         # expert_traj_for_metaitr = {t : joblib.load(self.demos_path+str(taskidx)+self.expert_trajs_suffix+".pkl") for t, taskidx in enumerate(self.goals_idxs_for_itr_dict[itr])}
                         expert_traj_for_metaitr = {t: expert_traj_for_metaitr[t] for t in range(self.meta_batch_size)}
 

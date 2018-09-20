@@ -34,8 +34,8 @@ import time
 beta_adam_steps_list = [(1,1)]
 # beta_curve = [250,250,250,250,250,5,5,5,5,1,1,1,1,] # make sure to check maml_experiment_vars
 # beta_curve = [1000] # make sure to check maml_experiment_vars
-adam_curve = [50,50,50,50,50,1,1,1,1] # make sure to check maml_experiment_vars
-# adam_curve = None
+# adam_curve = [100] *1000 +[10]*1000+[1,1,1] # make sure to check maml_experiment_vars
+adam_curve = [1]
 
 fast_learning_rates = [0.0]
 baselines = ['zero']  # linear GaussianMLP MAMLGaussianMLP zero
@@ -59,7 +59,7 @@ post_std_modifier_train_list = [0.00001]
 post_std_modifier_test_list = [0.00001]
 l2loss_std_mult_list = [0.0]
 importance_sampling_modifier_list = ['']  #'', 'clip0.5_'
-limit_demos_num_list = [10]  # 40
+limit_demos_num_list = [20]  # 40
 test_goals_mult = 1
 bas_lr = 0.01 # baseline learning rate
 momentum=0.5
@@ -132,16 +132,18 @@ for goals_suffix in goals_suffixes:
 
 
                                                         # policy = MAMLGaussianConvMLPPolicy(
-                                                        # # policy = MAMLGaussianMLPPolicy(
-                                                        #     name="policy",
-                                                        #     env_spec=env.spec,
-                                                        #     grad_step_size=fast_learning_rate,
-                                                        #     hidden_nonlinearity=tf.nn.relu,
-                                                        #     hidden_sizes=(100, 100),
-                                                        #     std_modifier=pre_std_modifier,
-                                                        #     # metalearn_baseline=(bas == "MAMLGaussianMLP"),
-                                                        #     extra_input_dim=(0 if extra_input is None else extra_input_dim),
-                                                        # )
+                                                        policy = MAMLGaussianMLPPolicy(
+                                                            name="policy",
+                                                            env_spec=env.spec,
+                                                            grad_step_size=fast_learning_rate,
+                                                            hidden_nonlinearity=tf.nn.relu,
+                                                            hidden_sizes=(400, 400, 100, 100),
+                                                            # conv_filters=[40,40,40,40],
+                                                            # conv_output_dim=80,
+                                                            std_modifier=pre_std_modifier,
+                                                            # metalearn_baseline=(bas == "MAMLGaussianMLP"),
+                                                            extra_input_dim=(0 if extra_input is None else extra_input_dim),
+                                                        )
                                                         if bas == 'zero':
                                                             baseline = ZeroBaseline(env_spec=env.spec)
                                                         elif bas == 'MAMLGaussianMLP':
@@ -194,17 +196,17 @@ for goals_suffix in goals_suffixes:
                                                                                                )))
                                                         algo = MAMLIL(
                                                             env=env,
-                                                            # policy=policy,
-                                                            policy=None,
-                                                            load_policy="/home/rosen/maml_rl/data/local/R7-IL-0909/R7_IL_vision_2distr_dummy_1nocorr_fbs1_mbs1_flr0.0_dem5_as1_basz_0909_07_34/itr_799.pkl",
+                                                            policy=policy,
+                                                            # policy=None,
+                                                            # load_policy="/home/rosen/maml_rl/data/local/R7-IL-0918/R7_IL_vision_2distr_dummy_1nocorr_fbs1_mbs1_flr0.0_dem20_as1_basz_1809_15_42/itr_27000.pkl",
                                                             # load_policy="/home/rosen/maml_rl/data/local/R7-IL-0828/R7_IL_vision_2distr_dummy_1nocorr_fbs1_mbs1_flr0.0_dem300_as1_basz_2808_20_49/itr_680.pkl",
                                                             baseline=baseline,
                                                             batch_size=fast_batch_size,  # number of trajs for alpha grad update
                                                             max_path_length=max_path_length,
                                                             meta_batch_size=meta_batch_size,  # number of tasks sampled for beta grad update
                                                             num_grad_updates=num_grad_updates,  # number of alpha grad updates
-                                                            n_itr=800, #100
-                                                            make_video=True,
+                                                            n_itr=100000, #100
+                                                            make_video=False,
                                                             # sampler_cls=BatchSampler,
                                                             # sampler_args=dict(n_envs=1),
                                                             use_maml=use_maml,
@@ -236,7 +238,8 @@ for goals_suffix in goals_suffixes:
                                                         run_experiment_lite(
                                                             algo.train(),
                                                             n_parallel=1,
-                                                            snapshot_mode="all",
+                                                            snapshot_mode="gap",
+                                                            snapshot_gap=250,
                                                             python_command='python3',
                                                             seed=seed,
                                                             exp_prefix=str('R7_IL_'

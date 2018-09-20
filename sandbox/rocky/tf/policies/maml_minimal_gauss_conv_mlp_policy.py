@@ -53,7 +53,7 @@ class MAMLGaussianConvMLPPolicy(StochasticPolicy, Serializable):
             conv_filter_sizes=[5,5,5,5],
             conv_strides=[2,2,2,1],
             conv_pads=['SAME','SAME','SAME','SAME'],
-            conv_output_dim=32,
+            conv_output_dim=96,
     ):
         """
         :param env_spec:
